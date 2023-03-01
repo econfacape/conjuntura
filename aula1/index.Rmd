@@ -25,8 +25,8 @@ knitr::opts_chunk$set(
   warning    = FALSE,
   message    = FALSE,
   comment    = NA,
-  fig.width  = 10, 
-  fig.height = 8,
+  fig.width  = 8, 
+  fig.height = 6,
   fig.align  = "center",
   comment    = "#",
   size       = "normalsize"
@@ -49,7 +49,7 @@ Não é simples. Para entender corretamente é preciso primeiramente entender um
 
 <br>
 
-```{r mba1, fig.cap = 'Figura1: Exemplos de variáveis macroeconômicas.'}
+```{r mba1, fig.cap = 'Figura 1: Exemplos de variáveis macroeconômicas.'}
 library(GetBCBData)
 
 dados_sgs <- GetBCBData::gbcbd_get_series(
@@ -130,7 +130,7 @@ O produto produzido pelas firmas é vendido no **mercado de bens e serviços** p
 
 Todo fluxo real é acompanhado de um fluxo monetário na medida em que as transações econômicas são efetuadas em moeda. A partir desse denominador comum, a moeda, é possível agregar bens e serviços heterogêneos, pelo valor ao qual eles são transacionados no mercado. 
 
-A igualdade entre produção, renda e despesa é em termos de moeda e período de tempo, medidos **ex-post**. 
+A igualdade entre produção, renda e despesa é, em termos de moeda e período de tempo, medidos **ex-post**. 
 
 No mundo real, se os fluxos reais forem diferentes dos fluxos monetários, há ajuste via preços ou via quantidades. Isto é, na economia real nem tudo o que é produzido pelas empresas (fluxo real) é de fato consumido pelas famílias (fluxo monetário), necessitando portanto de algum tipo de ajuste, seja via o mecanismo de preço e/ou por meio de variações nas quantidades ofertadas. Nesse contexto, há uma clara divisão de trabalho:
 
@@ -146,9 +146,9 @@ PIB = PNB - RLEE
 \tag{3}
 $$
 
-com o PNB sendo a renda que efetivamente pertence aos residentes no país e a RLEE (Renda Líquida Enviada ao Exterior) a diferença entre o que é pago por fatores de produção externos utilizados internamente e o que é recebido do exterior por fatores de produção nacionais empregados em outros países. No Brasil a RLEE enviada supera a recebida. Assim, o PNB é menor do que o PIB. 
+com o PNB sendo a renda que efetivamente pertence aos residentes no país e a RLEE (Renda Líquida Enviada ao Exterior), a diferença entre o que é pago por fatores de produção externos utilizados internamente e o que é recebido do exterior por fatores de produção nacionais empregados em outros países. No Brasil, a RLEE enviada supera a recebida. Assim, o PNB é menor do que o PIB. 
 
-```{r mba2}
+```{r mba2, fig.cap = 'Figura 2: PIB e PNB'}
 library(ggplot2)
 data <- read.csv2('arquivo01.csv', header=T, sep=';')
 dates <- seq(as.Date('2000-01-01'), as.Date('2022-09-01'), by='3 month')
@@ -190,7 +190,7 @@ As **variáveis macroeconômicas** são expressas em termos de **fluxo** e **est
 
 assim, o fluxo seria a variação do estoque medido ao longo do tempo.
 
-``` {r mba3}
+``` {r mba3, fig.cap = 'Figura 3: Fluxos e Estoques'}
 dados_sgs <- GetBCBData::gbcbd_get_series(
 id = c("NFSP" = 5793, "DBGG" = 13762),
 first.date = "2006-12-01",
@@ -325,6 +325,15 @@ Onde $\pi^*$ é uma meta de inflação e $\varepsilon_{t}^{bcb}$ é um ruído br
 
 Se a redução da taxa de juros nominal for suficiente para tornar a diferença entre a taxa de juros real e a taxa de juros neutra (aquela consistente com a estabilidade da taxa de inflação ao longo do tempo. É Variável não observável, que deve ser estimada e que depende de diversos fatores) negativa, o efeito passa a ser positivo sobre o hiato do produto, expresso na Curva IS.
 
+Uma taxa de juros nominal menor implica em um diferencial de juros (taxa de juros doméstica menos a taxa de juros externa) menor, contribuindo para desvalorizar a taxa de câmbio nominal. Se essa desvalorização nominal implicar em desvalorização real, há ainda um efeito sobre as exportações líquidas, contribuindo para pressionar positivamente o hiato do produto. Por fim, a inflação é afetada pelo hiato do produto e pela desvalorização nominal da taxa de câmbio, via Curva de Phillips. Em outras palavras, reduções na taxa básica de juros têm implicações sobre o nível de atividade e, consequentemente, sobre a inflação.
+
+Um ponto importante na equação $(7)$ é que que a inflação também é afetada pelas expectativas dos agentes. Há diversas formas de modelar como os agentes formam suas expectativas em relação a alguma variável macroeconômica. Por aqui, entretanto, basta supor que os agentes reagem ao sinal emitido pelo Banco Central, seja por meio de suas ações efetivas de política monetária, seja por sua comunicaçõo com o público. Nesses termos, uma política monetária transparente, que comunica adequadamente sua estratégia para fazer a inflação convergir para a meta, contribui para manter as expectativas ancoradas. De outra forma, quando o Banco Central erra na sua comunicação com o público, modificando constantemente sua estratégia de política monetária, isso contribui para tornar as expectativas mais voláteis e sensíveis a choques de oferta.
+
+Outra questão interessante aqui é sobre o que o hiato do produto representa. Em termos simples, ele expressa uma medida global de ociosidade da economia. A ideia é que quanto menos ociosa for a economia, maior será a pressão inflacionária. Isso é também captado na equação $(7)$ pelo coeficiente $\alpha_{3}$.
+
+Com esse modelo básico compreendido, é possível interpretar como mudanças em uma determinada variável afetam outras, bem como o mecanismo pelo qual a política econômica pode afetar o nível de atividade. O próximo passo são as análises empíricas.
+
+
 ```{r mba4, results = "hide", fig.show='hide'}
 library(GetTDData)
 library(readr)
@@ -388,16 +397,7 @@ addLegend("bottomleft", on=1,
 
 <br>
 
-![Figura 2: Juro Real x Juro Neutro](img_r/img1.png){width="100%"} <br>
-
-Uma taxa de juros nominal menor implica em um diferencial de juros (taxa de juros doméstica menos a taxa de juros externa) menor, contribuindo para desvalorizar a taxa de câmbio nominal. Se essa desvalorização nominal implicar em desvalorização real, há ainda um efeito sobre as exportações líquidas, contribuindo para pressionar positivamente o hiato do produto. Por fim, a inflação é afetada pelo hiato do produto e pela desvalorização nominal da taxa de câmbio, via Curva de Phillips. Em outras palavras, reduções na taxa básica de juros têm implicações sobre o nível de atividade e, consequentemente, sobre a inflação.
-
-Um ponto importante na equação $(4)$ é que que a inflação também é afetada pelas expectativas dos agentes. Há diversas formas de modelar como os agentes formam suas expectativas em relação a alguma variável macroeconômica. Por aqui, entretanto, basta supor que os agentes reagem ao sinal emitido pelo Banco Central, seja por meio de suas ações efetivas de política monetária, seja por sua comunicaçõo com o público. Nesses termos, uma política monetária transparente, que comunica adequadamente sua estratégia para fazer a inflação convergir para a meta, contribui para manter as expectativas ancoradas. De outra forma, quando o Banco Central erra na sua comunicação com o público, modificando constantemente sua estratégia de política monetária, isso contribui para tornar as expectativas mais voláteis e sensíveis a choques de oferta.
-
-Outra questão interessante aqui é sobre o que o hiato do produto representa. Em termos simples, ele expressa uma medida global de ociosidade da economia. A ideia é que quanto menos ociosa for a economia, maior será a pressão inflacionária. Isso é também captado na equação $(4)$ pelo coeficiente $\alpha_{3}$.
-
-Com esse modelo básico compreendido, é possível interpretar como mudanças em uma determinada variável afetam outras, bem como o mecanismo pelo qual a política econômica pode afetar o nível de atividade. O próximo passo são as análises empíricas.
-
+![Figura 4: Juro Real x Juro Neutro](img_r/img1.png){width="100%"} 
 <br>
 
 # Lidando com Dados
@@ -419,5 +419,358 @@ A última etapa do trabalho de um **Analista de Conjuntura** passa por **ligar o
 # Nível de Atividade
 
 <br>
+
+A macroeconomia nasce da soma de milhões de decisões diárias de indíviduos descentralizados. Tais indivíduos, com necessidades ilimitadas, decidem todos os dias o que produzir, como produzir e como distribuir esse esforço produtivo. A **variável macroeconômica** que representa esse esforço de forma mais completa é chamada de **Produto Interno Bruto**, ou simplesmente PIB, a soma de todos os bens e serviços finais produzidos por um país ao longo de um determinado período de tempo.
+
+O PIB é uma medida expressa em valores correntes ou números índices, do quanto um país utilizando recursos escassos, como trabalho e capital, gerou de produção e, consequentemente, de renda em um determinado período. Assim, a **taxa de crescimento do PIB** fornece uma boa medida sobre o quão rápido ou devagar um determinado país está crescendo economicamente.
+
+<br>
+
+``` {r mba5, fig.cap = 'Figura 5: Comportamento do PIB Trimestral (IBGE).'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("PIB" = 22099, "PIB_SA" = 22109),
+#first.date = "1996-03-01",
+#last.date = "2022-09-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo03.csv')
+
+pib <- ts(read.csv2('arquivo03.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(1996,01), freq=4)
+
+hp <- hpfilter(pib[,2], type='lambda', freq=1600)
+
+range <- range(pib[,2])
+
+plot(pib[,2], type="l", lwd=3, xaxt='n', bty='l', xlab='', 
+     ylab='Número Índice',
+     ylim=c(range[1], range[2]))
+
+polygon(x=c(2020,2020, 2021,2021),
+        y=c(range[1]-10, range[2]+10, rev(range[2]+10), rev(range[1]-10)),
+        density=NA, col="lightgray", border=NA)
+
+polygon(x=c(2014,2014, 2017,2017),
+        y=c(range[1]-10, range[2]+10, rev(range[2]+10), rev(range[1]-10)),
+        density=NA, col="lightgray", border=NA)
+
+polygon(x=c(2008,2008, 2010,2010),
+        y=c(range[1]-10, range[2]+10, rev(range[2]+10), rev(range[1]-10)),
+        density=NA, col="lightgray", border=NA)
+
+
+lines(pib[,2], type="l", lwd=3)
+lines(hp$trend, col='red', lty=2, lwd=2)
+axis(1, at=c(1996:2022))
+grid(, col='grey0')
+
+mtext('Comportamento do PIB trimestral', side=3, line=1, font=2)
+
+legend('topleft', lty=c(1,2), lwd=c(3,2), col=c('black', 'red'),
+       legend=c('PIB IBGE', 'Filtro HP'), bty='n')
+```
+
+<br>
+
+**Questões estruturais** e **questões conjunturais** afetam o produto e explicam o seu comportamento ao longo do tempo. Considere que o PIB efetivamente observado (chamado de PIB efetivo) possa ser decomposto em duas partes, a saber:
+
+$$
+Y_{t} = Y^P_{t} + h_{t}
+\tag{10}
+$$
+Onde $Y_{t}$ é o PIB em $t$, $Y^P_{t}$ é a **tendência de longo prazo do PIB**, chamada de **produto potencial** e $h_{t}$ é um componente cíclico, chamado de **hiato do produto**. 
+
+O **PIB Potencial**, $Y^P_{t}$, a tendência do PIB Efetivo ao longo do tempo, reflete condições estruturais da economia, como a **população em idade ativa, o estoque de capital, qualidade da educação, qualidade das instituições**, etc. O **hiato do produto**, $h_{t}$, o componente cíclico, por sua vez, reflete questões conjunturais, como **incentivos de política econômica, condições climáticas, choques externos, incertezas políticas**, etc.
+
+Em outros termos, no curto prazo o **PIB Efetivo** pode crescer mais ou menos do que o **PIB Potencial**, aquela **tendência**. No longo prazo, entretanto, o crescimento da economia está limitado pela **disponibilidade de fatores e pela forma como esses fatores são combinados**. 
+
+Isto é, supondo que a estrutura da economia possa ser representada por uma função do tipo Cobb-Douglas, com retornos constantes de escala, do tipo:
+
+$$
+Y_{t} = A_{t} K_{t}^{\alpha_{t}} L_{t}^{1-\alpha_{t}}
+\tag{11}
+$$
+onde $K_{t}$ e $L_{t}$ são, respectivamente, a quantidade de capital e trabalho, $A_{t}$ mede a eficiência tecnológica ou a **produtividade total dos fatores** e $\alpha_{t}$ mede a participação do capital na renda nacional. 
+
+Nesse contexto, $Y_{t}$, a soma de bens e serviços finais produzidos em determinado período de tempo, será dado pela combinação entre uma determinada quantidade de estoque de capital com outra de trabalho, moderada pela tecnologia disponível. Em última instância, portanto, $Y_{t}$ estará limitado pela disponibilidade de fatores de produção e pela forma como esses fatores são combinados (a produtividade total dos fatores). Os economistas gostam de chamar essa limitação de **produto potencial**, ou simplesmente $Y^P_{t}$.
+
+No curto prazo, a diferença entre $Y_{t}$ e $Y^P_{t}$ será assim dada pelo hiato do produto, $h_{t}$, que, por construção, irá medir o grau de ociosidade da economia. Calcular o hiato do produto, entretanto, não é uma tarefa trivial, uma vez que o PIB potencial não é uma variável observável. É necessário estimar o produto potencial e, depois, calcular o hiato. 
+
+Uma forma simples, porém, de fazer isso é obter o PIB Potencial por meio do Filtro Hodrick-Prescott. Considere a seguinte função de perda:
+
+$$
+L = \sum_{t=1}^T(Y_t - Y^P_{t})^2 + \lambda \sum_{t=1}^T\left[(Y^P_{t}-Y^P_{t-1}) - (Y^P_{t-1} - Y^P_{t-2})\right]^2
+\tag{12}
+$$
+
+onde T representa o tamanho da amostra e $\lambda$ é um parâmetro que assume quaisquer valores entre 0 e $\infty$. A série $Y^P_{t}$ é aquela que minimiza o valor de $L$. Observe que o primeiro termo da soma que constitui $L$ penaliza quaisquer desvios entre $Y^P_{t}$ e $Y_{t}$, enquanto que o segundo termo pune quaisquer mudanças no ritmo de crescimento de $Y^P_{t}$. Logo,
+
+$$
+\lim_{\lambda \rightarrow 0}  Y^P_{t}=Y_{t} \nonumber
+\tag{13}
+$$
+
+$$
+\lim_{\lambda \rightarrow \infty}  Y^P_{t}= TD \nonumber
+\tag{14}
+$$
+
+<br>
+
+``` {r mba6, fig.cap = 'Figura 6: O Hiato do Produto.'}
+
+plot(hp$cycle, bty='l', xlab='', ylab='Número índice', xaxt='n', lwd=2)
+axis(1, at=c(1996:2022))
+abline(h=0, col='red', lty=1, lwd=2)
+
+grid(col='gray0')
+
+mtext('Hiato do Produto (PIB efetivo - PIB potencial)', side=3, line=1, font=2)
+```
+
+<br> 
+
+O hiato do produto representa, então, o que os economistas gostam de chamar de ciclo econômico ou  o ajuste entre o PIB efetivo e o seu potencial. A dinâmica desse ciclo é determinada em grande medida pela rigidez de preços. Fossem os preços totalmente flexíveis, o ajuste seria imediato, implicando que $h_t$ seria zero, ou seja, o pib efetivamente observado seria sempre igual a sua tendência de longo prazo, o pib potencial.
+
+O quanto a economia está distante do seu crescimento potencial terá papel crucial na definição da taxa de crescimento dos preços (inflação) e, portanto, nas mudanças de taxa de juros por parte do Banco Central. Entender, desse modo, o comportamento do **nível de atividade** é de suma importância para o analista de conjuntura. 
+
+<br>
+
+### PIB e seus componentes
+
+<br>
+
+Para analisar o crescimento da economia do Brasil, é preciso
+pegar dois números-índices para cada um dos componentes do PIB: um encadeado normal e outro com ajuste sazonal. O número índice irá fornecer uma única informação: se o PIB e seus componentes estão crescendo ou diminuindo.
+
+<br>
+
+#### Série encadeada do índice de volume trimestral
+
+<br>
+
+``` {r mba7, fig.cap = 'Figura 7: PIB e seus componentes encadeado normal'}
+library(BMR)
+#Tabela 1620 - Série encadeada do índice de volume trimestral (Base: média 1995 = 100
+#https://sidra.ibge.gov.br/tabela/1620
+
+pib <- read.csv(file='arquivo04.csv',
+                header=T,sep=";",dec=".", skip=4)
+
+pib <- ts(pib[-nrow(pib),-1], start=c(1996,01), freq=4)
+
+colnames(pib) <- c('Agro', 'Ind', 'Serv', 'PIB', 'CF', 'CG', 'FBCF', 'X', 'M')
+
+#Tabela 1621 - Série encadeada do índice de volume trimestral com ajuste sazonal (Base: média 1995 = 100
+#https://sidra.ibge.gov.br/tabela/1621
+
+pib_sa <- read.csv(file='arquivo05.csv',
+                    header=T,sep=";",dec=".", skip=4)
+pib_sa <- ts(pib_sa[-nrow(pib_sa),-1], start=c(1996,01), freq=4)
+colnames(pib_sa) <- c('Agro', 'Ind', 'Serv', 'PIB', 'CF', 'CG', 'FBCF', 'X', 'M')
+
+#Analise do PIB e seus componentes
+dates <- seq(as.Date('1996-01-01'), as.Date('2022-09-01'), by='3 month')
+
+#pib <- data.frame(time=dates, pib)
+#pib1 <- ggplot(pib, aes(x=time))+
+#  geom_line(aes(y=pib$Agro), color="darkblue", #linewidth=.6)+
+#  xlab('')+ylab('AGRO')+
+#  theme(legend.position = 'top')
+#library(easyGgplot2)
+#ggplot2.multiplot(pib1, pib2, pib3, pib4, pib5, pib6, pib7, pib8, pib9, cols=3)
+
+gtsplot(pib, dates=dates)
+```
+
+<br>
+
+#### Série encadeada com ajuste sazonal
+
+<br>
+
+``` {r mba8, fig.cap = 'Figura 8: PIB e seus componentes encadeado com ajuste sazonal'}
+#PIB dessazonalizado e seus componentes
+#Conjuntura4
+gtsplot(pib_sa, dates=dates)
+```
+
+<br>
+
+#### Variação Marginal da série encadeada com ajuste sazonal
+
+<br>
+
+As variações das séries são bem grandes, dado que a análise é sobre o quanto a mesma se modificou entre um trimestre e outro. Mesmo assim, fica evidente que o Agro foi o setor que menos sentiu a crise da pandemia do novo coronavírus.
+
+De forma a obter uma métrica mais suavizada, pode-se comparar o PIB no mesmo trimestre entre anos distintos, ou seja, obter uma variação interanual.
+
+<br>
+
+``` {r mba9, fig.cap = 'Figura 9: Variação Marginal'}
+### Variacao Marginal (comparo com o trimestre anterior)
+margem <- (pib_sa/stats::lag(pib_sa,-1)-1)*100
+colnames(margem) <- colnames(pib_sa)
+
+dates <- seq(as.Date('1996-04-01'), as.Date('2022-09-01'), by='3 month')
+gtsplot(margem, dates=dates)
+```
+
+<br>
+
+#### Variação Internanual da série encadeada com ajuste sazonal
+
+<br>
+
+```{r mba10, fig.cap = 'Figura 10: Variação Interanual'}
+### Mesmo trimestre do ano anterior
+trimestral <- (pib_sa/stats::lag(pib_sa,-4)-1)*100
+colnames(trimestral) <- colnames(pib_sa)
+
+dates <- seq(as.Date('1997-01-01'), as.Date('2022-07-01'), by='3 month')
+#Conjuntura6
+gtsplot(trimestral, dates=dates)
+```
+
+<br>
+
+#### Variação acumulada em 4 trimestres do PIB e de seus componentes
+
+<br>
+
+```{r mba11, fig.cap = 'Figura 10: Variação Interanual'}
+### Acumulado em 4 trimestres
+anual <- (((pib_sa+stats::lag(pib_sa,-1)+stats::lag(pib_sa,-2)+stats::lag(pib_sa,-3))/4)/
+            ((stats::lag(pib_sa,-4)+stats::lag(pib_sa,-5)+stats::lag(pib_sa,-6)+stats::lag(pib_sa,-7))/4)-1)*100
+colnames(anual) <- colnames(pib)
+
+dates <- seq(as.Date('1997-10-01'), as.Date('2022-07-01'), by='3 month')
+#Conjuntura7
+gtsplot(anual, dates=dates)
+```
+
+<br>
+
+#### Informações em tabelas
+
+<br>
+
+```{r mba12}
+#Tabelas
+table.margem <- t(tail(round(margem, digits=2),
+                       n=1))
+#rownames(table.margem) <- colnames(trimestral[,-10])
+table.trimestral <- t(tail(round(trimestral[,-10], digits=2),
+                           n=1))
+table.anual <- t(tail(round(anual[,-10], digits=2),
+                      n=1))
+resumo <- cbind(table.margem, table.trimestral, table.anual)
+colnames(resumo) <- c('Margem', 'Trimestral', 'Anual')
+rownames(resumo) <- c('Agricultura', 'Indústria', 'Serviços', 'PIB', 'Consumo Famílias', 'Gastos Governo', 'Formação Bruta de Capital Fixo', 'Exportações', 'Importações')
+
+library(DT)
+
+datatable(resumo,
+          options = list(dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+<br>
+
+### O índice de Nível de Atividade do Banco Central (IBC-Br)
+
+<br>
+
+O Banco Central assim define o seu IBC-Br:
+
+O IBC-Br se constitui em um indicador de periodicidade mensal que incorpora a trajetária das variáveis consideradas como proxies para o desempenho dos setores da economia.
+Dado que o PIB é calculado pelo IBGE é uma variável trimestral, logo existe procura para índices de base mensal que busquem medir o comportamento do nível de atividade. O IBC-Br atender esta demanda. Ele está disponível a partir de 2003.
+
+<br>
+
+```{r mba13, fig.cap = 'Figura 11: Índice de Nível de Atividade do Banco Central (IBC-Br)', fig.width=10, fig.height=6}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("IBC-Br" = 24363, "IBC-BR SA" = 24364),
+#first.date = "2003-01-01",
+#last.date = "2022-12-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo06.csv')
+
+ibc.br <- ts(read.csv2('arquivo06.csv',
+                       header=T, sep=';', dec=",")[,-c(1,2)],
+             start=c(2003,01), freq=12)
+
+par(mfrow=c(1,2))
+plot(ibc.br[,1], main='IBC-BR', xlab='', ylab='Número Indice')
+grid(col='grey0')
+plot(ibc.br[,2], main='IBC-BR SA', xlab='', ylab='Número Indice')
+grid(col='grey0')
+```
+
+<br>
+
+#### Metricas do IBC-Br (%)
+
+<br>
+
+```{r mba14, fig.width=10, fig.cap = 'Figura 12: Métrica do IBC-Br (%)'}
+#variacao mensal
+## Variacao mensal
+vmensal <- (ibc.br[,2]/stats::lag(ibc.br[,2],-1)-1)*100
+
+## Interanual
+interanual <- (ibc.br[,2]/stats::lag(ibc.br[,2],-12)-1)*100
+
+## Anual
+anual <- ibc.br[,2]
+anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
+            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
+            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
+              stats::lag(anual,-11))/12)/
+            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
+                stats::lag(anual,-14)+stats::lag(anual,-15)
+              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
+              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
+              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
+
+# Trimestral
+trimestral <- (((ibc.br[,2]+stats::lag(ibc.br[,2],-1)+stats::lag(ibc.br[,2],-2))/3)/((stats::lag(ibc.br[,2],-12)+stats::lag(ibc.br[,2],-13)+stats::lag(ibc.br[,2],-14))/3)-1)*100
+
+table.vmensal <- tail(vmensal, n=3)
+table.trimestral <- tail(trimestral, n=3)
+table.interanual <- tail(interanual, n=3)
+table.anual <- tail(anual, n=3)
+table <- cbind(table.vmensal, table.trimestral, table.interanual,
+               table.anual)
+colnames(table) <- c('Mensal', 'Trimestral', 'Interanual', '12 meses')
+rownames(table) <- c('Outubro/22', 'Novembro/22', 'Dezembro/22')
+
+plot1 <- cbind(vmensal, trimestral, interanual, anual)
+dates <- seq(as.Date('2005-01-01'), as.Date('2022-12-01'), by='1 month')
+plot1 <- window(plot1, start=c(2005,1))
+gtsplot(plot1, dates=dates)
+```
+
+<br>
+
+
+``` {r mba15, echo=FALSE}
+datatable(round(table,2),
+          options = list(dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+
+
+
+
+
 
 <br>
