@@ -969,6 +969,10 @@ datatable(round(table.des,2),
 
 <br>
 
+#### Índice de Confiança do Consumidor
+
+<br>
+
 ```{r mba21}
 #dados_sgs <- GetBCBData::gbcbd_get_series(
 #id = c("Confiança do Consumidor" = 4393),
