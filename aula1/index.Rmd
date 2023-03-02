@@ -562,7 +562,7 @@ pib <- read.csv(file='arquivo04.csv',
 
 pib <- ts(pib[-nrow(pib),-1], start=c(1996,01), freq=4)
 
-colnames(pib) <- c('Agro', 'Ind', 'Serv', 'PIB', 'CF', 'CG', 'FBCF', 'X', 'M')
+colnames(pib) <- c('Agricultura', 'Indústria', 'Serviços', 'PIB', 'Consumo Famílias', 'Gastos Governo', 'Formação Bruta de Capital Fixo', 'Exportações', 'Importações')
 
 #Tabela 1621 - Série encadeada do índice de volume trimestral com ajuste sazonal (Base: média 1995 = 100
 #https://sidra.ibge.gov.br/tabela/1621
@@ -570,10 +570,10 @@ colnames(pib) <- c('Agro', 'Ind', 'Serv', 'PIB', 'CF', 'CG', 'FBCF', 'X', 'M')
 pib_sa <- read.csv(file='arquivo05.csv',
                     header=T,sep=";",dec=".", skip=4)
 pib_sa <- ts(pib_sa[-nrow(pib_sa),-1], start=c(1996,01), freq=4)
-colnames(pib_sa) <- c('Agro', 'Ind', 'Serv', 'PIB', 'CF', 'CG', 'FBCF', 'X', 'M')
+colnames(pib_sa) <- c('Agricultura', 'Indústria', 'Serviços', 'PIB', 'Consumo Famílias', 'Gastos Governo', 'Formação Bruta de Capital Fixo', 'Exportações', 'Importações')
 
 #Analise do PIB e seus componentes
-dates <- seq(as.Date('1996-01-01'), as.Date('2022-09-01'), by='3 month')
+dates <- seq(as.Date('1996-01-01'), as.Date('2022-12-01'), by='3 month')
 
 #pib <- data.frame(time=dates, pib)
 #pib1 <- ggplot(pib, aes(x=time))+
@@ -615,7 +615,7 @@ De forma a obter uma métrica mais suavizada, pode-se comparar o PIB no mesmo tr
 margem <- (pib_sa/stats::lag(pib_sa,-1)-1)*100
 colnames(margem) <- colnames(pib_sa)
 
-dates <- seq(as.Date('1996-04-01'), as.Date('2022-09-01'), by='3 month')
+dates <- seq(as.Date('1996-04-01'), as.Date('2022-12-01'), by='3 month')
 gtsplot(margem, dates=dates)
 ```
 
@@ -630,7 +630,7 @@ gtsplot(margem, dates=dates)
 trimestral <- (pib_sa/stats::lag(pib_sa,-4)-1)*100
 colnames(trimestral) <- colnames(pib_sa)
 
-dates <- seq(as.Date('1997-01-01'), as.Date('2022-07-01'), by='3 month')
+dates <- seq(as.Date('1997-01-01'), as.Date('2022-12-01'), by='3 month')
 #Conjuntura6
 gtsplot(trimestral, dates=dates)
 ```
@@ -647,7 +647,7 @@ anual <- (((pib_sa+stats::lag(pib_sa,-1)+stats::lag(pib_sa,-2)+stats::lag(pib_sa
             ((stats::lag(pib_sa,-4)+stats::lag(pib_sa,-5)+stats::lag(pib_sa,-6)+stats::lag(pib_sa,-7))/4)-1)*100
 colnames(anual) <- colnames(pib)
 
-dates <- seq(as.Date('1997-10-01'), as.Date('2022-07-01'), by='3 month')
+dates <- seq(as.Date('1997-10-01'), as.Date('2022-12-01'), by='3 month')
 #Conjuntura7
 gtsplot(anual, dates=dates)
 ```
@@ -759,7 +759,6 @@ gtsplot(plot1, dates=dates)
 
 <br>
 
-
 ``` {r mba15, echo=FALSE}
 datatable(round(table,2),
           options = list(dom = 't',
@@ -767,10 +766,229 @@ datatable(round(table,2),
                            list(list(className = 'dt-center', targets = "_all"))))
 ```
 
+<br>
+
+### Pesquisa Mensal do Comércio (PMC-IBGE)
+
+<br>
+
+Aqui são analisadas informações do Comércio Restrito, do Comércio Ampliado e com as informações desagregadas. No caso do varejo restrito, são 8 setores: 
+
+* Combustíveis e lubrificantes;
+
+* Hipermercados, supermercados, produtos alimentícios, bebidas e fumo;
+
+* Tecidos, vestuário e calçados;
+
+* Móveis e eletrodomésticos;
+
+* Artigos farmacêuticos, médicos, ortopédicos, de perfumaria e cosméticos;
+
+* Livros, jornais, revistas e papelaria;
+
+* Equipamentos e materiais para escritório, informática e comunicação;
+
+* Outros artigos de uso pessoal e doméstico.
+
+O varejo ampliado tem 10 setores, pois inclui ao varejo restrito material de construção e Veículos, motocicletas, partes e peças.
+
+```{r mba16}
+
+library(tidyverse)
+
+#https://sidra.ibge.gov.br/tabela/8185
+restrito <- read.csv2('arquivo07.csv', header=T, sep=";",dec=".", skip=4)[,-1]
+
+colnames(restrito) <- c('Receita', 'Volume', 'Receita SA', "Volume SA")
+
+restrito <- select(restrito, Volume, 'Volume SA', Receita, 'Receita SA')
+
+restrito <- ts(restrito[-nrow(restrito),], start=c(2000,1), freq=12)
+
+## Importar o arquivo do comercio ampliado
+#https://sidra.ibge.gov.br/tabela/8186
+ampliado <- read.csv2('arquivo08.csv', header=T, sep=";",dec=".", skip=4)[,-1]
+
+colnames(ampliado) <- c('Receita', 'Volume', 'Receita SA', "Volume SA")
+
+ampliado <- select(ampliado, Volume, 'Volume SA', Receita, 'Receita SA')
+
+ampliado <- ts(ampliado[-nrow(ampliado),], start=c(2003,1), freq=12)
+
+## Importar o arquivo 'desagregado'
+#https://sidra.ibge.gov.br/tabela/8188
+desagregado <- read.csv2('arquivo09.csv', header=T, sep=";",dec=".",
+                         skip=5)
+desagregado <- desagregado[,-1]
+desagregado <- ts(desagregado[-nrow(desagregado),], start=c(2000,1),
+                  freq=12)
+
+## Nomes das categorias desagregadas do comercio
+names.desagregado <- c("Combustiveis e lubrificantes",	"Hipermercados, supermercados, produtos alimenticios, bebidas e fumo",	"Hipermercados e supermercados", "Tecidos, vestuario e calcados", "Moveis e eletrodomesticos",	"Artigos farmaceuticos, medicos, ortopedicos, de perfumaria e cosmeticos", "Livros, jornais, revistas e papelaria", "Equipamentos e materiais para escritorio, informatica e comunicacao", "Outros artigos de uso pessoal e domestico", "Veículos, motocicletas, partes e peças", "Material de construção")
+
+## Organizando os dados
+
+receita.desagregado <- desagregado[,c(1:11)]
+
+receitasa.desagregado <- desagregado[,c(12:22)]
+
+volume.desagregado <- desagregado[,c(23:33)]
+
+volumesa.desagregado <- desagregado[,c(34:44)]
 
 
+## Variacao mensal
+vmensal <- cbind(restrito[,c(2,4)], ampliado[,c(2,4)])
+vmensal <- (vmensal/stats::lag(vmensal,-1)-1)*100
+colnames(vmensal) <- c('Volume Restrito', 'Receita Restrito',
+                       'Volume Ampliado','Receita Ampliado')
 
+## Interanual
+interanual <- cbind(restrito[,c(2,4)], ampliado[,c(2,4)])
+interanual <- (interanual/stats::lag(interanual,-12)-1)*100
+colnames(interanual) <- colnames(vmensal)
 
+## Anual
+anual <- cbind(restrito[,c(2,4)], ampliado[,c(2,4)])
+anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)+
+              stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+
+              stats::lag(anual,-7)+stats::lag(anual,-8)+stats::lag(anual,-9)+
+              stats::lag(anual,-10)+stats::lag(anual,-11))/12)/
+            ((stats::lag(anual,-12)+stats::lag(anual,-13)+stats::lag(anual,-14)+
+                stats::lag(anual,-15)+stats::lag(anual,-16)+stats::lag(anual,-17)+
+                stats::lag(anual,-18)+stats::lag(anual,-19)+stats::lag(anual,-20)+
+                stats::lag(anual,-21)+stats::lag(anual,-22)+stats::lag(anual,-23))
+             /12)-1)*100
+colnames(anual) <- colnames(interanual)
+
+# Trimestral
+trimestral <- (vmensal+stats::lag(vmensal,-1)+stats::lag(vmensal,-2))/3
+colnames(trimestral) <- colnames(vmensal)
+
+table.vmensal <- t(tail(vmensal, n=1))
+table.trimestral <- t(tail(trimestral, n=1))
+table.interanual <- t(tail(interanual, n=1))
+table.anual <- t(tail(anual, n=1))
+table_pmc <- cbind(table.vmensal, table.trimestral, table.interanual,
+               table.anual)
+colnames(table_pmc) <- c('Mensal', 'Trimestral', 'Interanual', '12 meses')
+
+#Updated 15/11/18
+#ultima <- as.Date('2022-12-01')
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+
+#Variação em relação ao mes anterior
+plot1 <- window(vmensal, start=c(2003,1))
+gtsplot(plot1, dates=dates)
+
+```
+
+<br>
+
+#### PMC - Variação em relação ao mesmo mês do ano anterior
+
+<br>
+
+``` {r mba17}
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+plot2 <- window(interanual, start=c(2003,1))
+gtsplot(plot2, dates=dates)
+```
+
+<br>
+
+#### PMC - Variação acumulada em 12 meses
+
+<br>
+
+``` {r mba18}
+dates <- seq(as.Date('2003-12-01'), as.Date('2022-12-01'), by='1 month')
+plot3 <- window(anual, start=c(2003,12))
+gtsplot(plot3, dates=dates)
+```
+
+<br>
+
+#### PMC - Informações em Tabelas
+
+<br>
+
+``` {r mba19, echo=FALSE}
+datatable(round(table_pmc,2),
+          options = list(dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+#### PMC (Varejo Desagregado) - Informações em Tabelas
+
+<br>
+
+````{r mba20, echo=FALSE}
+######## Variacao mensal ##########
+
+vmensal.des.vol <- (volumesa.desagregado/
+                      stats::lag(volumesa.desagregado, -1)-1)*100
+
+colnames(vmensal.des.vol) <- names.desagregado
+
+########### Trimestral ################
+
+trim.des.vol <- (vmensal.des.vol+stats::lag(vmensal.des.vol,-1)+stats::lag(vmensal.des.vol,-2))/3
+
+colnames(trim.des.vol) <- colnames(vmensal.des.vol)
+
+############## Interanual ###############
+
+interanual.des.vol <- (volume.desagregado/stats::lag(volume.desagregado,-12)-1)*100
+
+colnames(interanual.des.vol) <- names.desagregado
+
+########## Anual ############
+
+anual.des.vol <- volume.desagregado
+
+anual.des.vol <- (((anual.des.vol+stats::lag(anual.des.vol,-1)+stats::lag(anual.des.vol,-2)+stats::lag(anual.des.vol,-3)+stats::lag(anual.des.vol,-4)+stats::lag(anual.des.vol,-5)+stats::lag(anual.des.vol,-6)+stats::lag(anual.des.vol,-7)+stats::lag(anual.des.vol,-8)+stats::lag(anual.des.vol,-9)+stats::lag(anual.des.vol,-10)+stats::lag(anual.des.vol,-11))/12)/((stats::lag(anual.des.vol,-12)+stats::lag(anual.des.vol,-13)+stats::lag(anual.des.vol,-14)+stats::lag(anual.des.vol,-15)+stats::lag(anual.des.vol,-16)+stats::lag(anual.des.vol,-17)+stats::lag(anual.des.vol,-18)+stats::lag(anual.des.vol,-19)+stats::lag(anual.des.vol,-20)+stats::lag(anual.des.vol,-21)+stats::lag(anual.des.vol,-22)+stats::lag(anual.des.vol,-23))/12)-1)*100
+
+colnames(anual.des.vol) <- names.desagregado
+
+table.mes <- t(tail(vmensal.des.vol, n=1))
+table.tri <- t(tail(trim.des.vol, n=1))
+table.int <- t(tail(interanual.des.vol, n=1))
+table.ano <- t(tail(anual.des.vol, n=1))
+table.des <- cbind(table.mes, table.tri, table.int, table.ano)
+colnames(table.des) <- c('Mensal', 'Trimestral', 'Interanual', '12 meses')
+
+datatable(round(table.des,2),
+          options = list(dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+```{r mba21}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Confiança do Consumidor" = 4393),
+#first.date = "2000-01-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='confianca4393.csv')
+
+consumidor <- ts(read.csv2('confianca4393.csv',
+                       header=T, sep=';', dec=",")[,-c(1,2)],
+             start=c(2000,01), freq=12)
+par(mfrow=c(1,1))
+plot(consumidor, bty='l', xlab='Tempo', ylab='Indice', xaxt='n', lwd=2)
+axis(1, at=c(2000:2023))
+grid(col='gray0')
+mtext('Indice de Confianca do Consumidor', side=3, line=1, font=2)
+```
 
 
 <br>
