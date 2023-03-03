@@ -1,0 +1,306 @@
+---
+title: "PANORAMA ECONÔMICO E ANÁLISE SETORIAL DE MERCADOS"
+author: "João Ricardo F. de Lima"
+date: "`r format(Sys.time(), '%d de %B de %Y.')`"
+output: 
+    html_document:
+        theme: flatly
+        number_sections: no
+        highlight: textmate
+#        includes: 
+#          in_header: "header.html"
+        toc: yes
+        toc_float:
+          collapsed: yes
+          smooth_scroll: yes 
+        df_print: paged  #ajusta o formato da tabela
+---
+
+```{r mba0, include=FALSE}
+setwd('/Users/jricardofl/Dropbox/tempecon/facape/mba2023')
+#setwd("C:/Users/User client/Dropbox/tempecon/Facape/mba2023")
+
+knitr::opts_chunk$set(
+  echo       = TRUE,
+  warning    = FALSE,
+  message    = FALSE,
+  comment    = NA,
+  fig.width  = 8, 
+  fig.height = 6,
+  fig.align  = "center",
+  comment    = "#",
+  size       = "normalsize"
+  )
+```
+
+<br>
+
+# O Mercado de Trabalho
+
+<br>
+
+Como visto, a soma de bens e serviços finais produzidos por um país em um determinado período depende, basicamente, da disponibilidade de fatores de produção e da forma como esses fatores são combinados. Assim, é preciso entender sobre a dinâmica desses fatores, ou seja, sobre como a oferta e a demanda por eles evolui ao longo do tempo. 
+
+Com esse objetivo, é importante definir alguns conceitos. O total de pessoas de um país divide-se em dois grandes grupos: a população inativa e a ativa. O primeiro grupo é composto, basicamente, por crianças e idosos, enquanto o segundo pelo grupo de pessoas que **estariam aptas a exercer algum tipo de trabalho**.
+
+A **população em idade ativa (PIA)**, por sua vez, se divide em **população economicamente ativa (PEA)** e **população não economicamente ativa (PNEA)**. No primeiro grupo estão as **pessoas ocupadas (PO)** e as **pessoas desocupadas, mas em busca de ocupação (PD)**, enquanto no segundo estão as **pessoas desocupadas, que não estão buscando ocupação**. Em resumo:
+
+<br>
+
+$$
+População = PIA + Inativos 
+\tag{1}
+$$
+$$
+PIA = PEA + PNEA
+\tag{2}
+$$
+
+$$
+PEA = PO + PD 
+\tag{3}
+$$
+
+$$
+PD = PEA - PO
+\tag{4}
+$$
+
+$$
+\frac{PD}{PEA} = 1 - \frac{PO}{PEA}
+\tag{5}
+$$
+
+$$
+Participação =  \frac{PEA}{PIA}
+\tag{6}
+$$
+
+<br>
+
+O que conhecemos, nesse contexto, como **taxa de desemprego** nada mais é do que a resultante final de uma complexa interação entre oferta e demanda de trabalho. O grau de ociosidade nesse mercado, por fim, vai definir a qual taxa os salários irão crescer, que pode ser maior, menor ou igual ao crescimento da produtividade da economia.
+
+A análise do mercado de trabalho pode ser feita com base nos dados do CAGED (Cadastro Geral de Empregados e Desempregados) ou com os dados **Pesquisa Nacional por Amostra de Domicílios Contínua** organizada e divulgada pelo IBGE. A PNAD Contínua, de abrangência nacional, veio substituir a Pesquisa Mensal de Emprego (PME), que englobava apenas as seis maiores regiões metropolitanas do país. 
+
+<br>
+
+#### Evolução Dados sobre Mercado de Trabalho
+
+``` {r mba1, fig.cap = 'Figura 1: Evolução Dados sobre Mercado de Trabalho'}
+
+#Analise do Mercado de Trabalho
+#https://sidra.ibge.gov.br/home/pnadcm
+library(sidrar)
+library(GetTDData)
+library(readr)
+library(xts)
+library(forecast)
+library(scales)
+library(ggplot2)
+library(mFilter)
+library(grid)
+library(png)
+library(rbcb)
+library(Quandl)
+#library(tidyverse)
+library(plotly)
+library(BMR)
+#datamt0 <- get_sidra(api='/t/6022/n1/all/v/606/p/all') #Populacao
+#datamt1 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32385') #PIA+PD+PEA
+#datamt2 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32386')#PIA
+#datamt3 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32387')
+#datamt4 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32446')
+#datamt5 <-get_sidra(api='/t/6320/n1/all/v/4090/p/all/c11913/31722,31723,31724,31727,31731,96165,96170,96171') #PIA
+#http://api.sidra.ibge.gov.br/values/t/6323/n1/all/v/4090/p/first%2077/c693/all
+
+#write.csv2(datamt0, file='arquivo12a.csv')
+
+dataa <- ts(read.csv2('arquivo12a.csv', header=T,
+                     sep=';'),
+           start=c(2012,03), freq=12)
+
+data <- ts(read.csv2('arquivo12.csv', header=T,
+                     sep=';', dec=',', skip=4)[,-1],
+           start=c(2012,03), freq=12)
+
+data <- na.omit(data)
+
+data <- cbind.data.frame(dataa[,6], data)
+
+### Calcular Series e Taxas
+pnea <- data[,2] - data[,3] # Populacao nao economicamente ativa
+pia.pop <- data[,2]/data[,1]*100 # PIA/Populacao PIA= Pop. Idade Ativa
+participacao <- data[,3]/data[,2]*100 # PEA/PIA PEA=PO+PD
+ocupacao.pia <- data[,4]/data[,2]*100 # PO/PIA PO=POp Ocupada
+desemprego <- data[,5]/data[,3]*100 #PD/PEA PD=Pop Desocupada
+
+macro <- cbind(data[,1:5], pnea, pia.pop, participacao, ocupacao.pia,
+               desemprego)
+colnames(macro) <- c('Populacao', 'PIA', 'PEA', 'PO', 'PD', 'PNEA',
+                     'PIA/POP', 'PARTICIPACAO', 'PO/PIA', 'DESEMPREGO')
+
+macro <- ts(macro, start=c(2012,03), freq=12)
+### Variacao internanual
+interanual <- (macro/stats::lag(macro,-12)-1)*100
+colnames(interanual) <- colnames(macro)
+
+### Variacao internanual
+interdecanual <- (macro/stats::lag(macro,-120)-1)*100
+colnames(interanual) <- colnames(macro)
+
+interanual1<-interanual[,-1]
+#plot1 <- window(interanual1, end=c(2016,6))
+
+dates <- seq(as.Date('2012-03-01'),
+             as.Date('2022-12-01'), by='1 month')
+macro1 <- macro[,-1]
+gtsplot(macro1, dates=dates)
+```
+
+<br>
+
+#### Mercado de Trabalho, Variação Interanual
+
+<br>
+
+```{r mba2, fig.cap = 'Figura 2: Variações Interanuais das métricas principais da PNAD Contínua'}
+dates <- seq(as.Date('2013-03-01'),
+             as.Date('2022-12-01'), by='1 month')
+gtsplot(interanual1, dates=dates)
+```
+
+<br>
+
+#### Métricas da PNAD Contínua
+
+<br>
+
+```{r mba3}
+#Tabela
+
+c1 <- tail(macro, n=1)
+c2 <- macro[nrow(macro)-12,]
+c3 <- tail(interanual, n=1)
+c4 <- macro[nrow(macro)-120,]
+table <- t(rbind(c1,c2,c3,c4))
+colnames(table) <- c('Dez/22', 'Dez/21', 'Variação', 'Dez/12')
+
+library(DT)
+
+datatable(round(table,2),
+          options = list(pageLength = 11,
+                         dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+#### Desagregação da População Ocupada
+
+De forma a compreender o comportamento da demanda por trabalho, é importante saber desagregar os dados da PNAD Contínua.
+
+<br>
+
+```{r mba4, fig.cap = 'Figura 3: Desagregação da População Ocupada'}
+#datab <- get_sidra(api='t/6320/n1/all/v/4090/p/all/c11913/31722,31723,31724,31727,31731,96170,96171')
+
+datab <- ts(read.csv2('arquivo12b.csv', header=T,
+                     sep=';', dec=',', skip=4)[,-1],
+           start=c(2012,03), freq=12)
+
+pesos.po <- na.omit(datab)
+
+pesos.po1 <- (pesos.po/data[,4])*100
+
+colnames(pesos.po1) <- c("Privado com Carteira",
+                         "Privado sem Carteira",
+                         "Trabalhador Domestico",
+                         "Setor Publico",
+                         "Empregador","Conta Propria",
+                         "Trabalhador Familiar Auxiliar")
+
+### Gerar Grafico
+pie(colMeans(pesos.po1), col=c('red','black','blue','darkblue',
+                               'darkgreen', '367', '556'),
+    main='Populacao Ocupada PNADC mensal desagregada (%)')
+```
+
+```{r mba5, fig.cap = 'Figura 4: Desagregação da População Ocupada'}
+pesos.po2 <- window(pesos.po1, start=c(2017,3), end=c(2020,3))
+### Gerar Grafico
+pie(colMeans(pesos.po2), col=c('red','black','blue','darkblue',
+                               'darkgreen', '367', '556'),
+    main='Populacao Ocupada PNADC mensal desagregada (%) - Pré Pandemia')
+```
+
+
+```{r mba6, fig.cap = 'Figura 5: Desagregação da População Ocupada'}
+pesos.po3 <- window(pesos.po1, start=c(2020,3))
+### Gerar Grafico
+pie(colMeans(pesos.po3), col=c('red','black','blue','darkblue',
+                               'darkgreen', '367', '556'),
+    main='Populacao Ocupada PNADC mensal desagregada (%) - Pós Pandemia')
+```
+
+```{r mba7}
+pie1 <- colMeans(pesos.po1)
+pie2 <- colMeans(pesos.po2)
+pie3 <- colMeans(pesos.po3)
+
+table <- cbind(pie1, pie2, pie3)
+
+colnames(table) <- c("Média Série", "Média pós 2017", "Média pós 2020")
+
+datatable(round(table,2),
+          options = list(pageLength = 7,
+                         dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+#### Variação Interanual da Taxa de Desemprego PNADC
+
+Uma outra métrica interessante para análise da situação do desemprego pode ser obtida confrontando o dado em t contra o mesmo dado em t-12. Obtém-se, assim, o chamado de variação interanual do desemprego.
+
+<br>
+
+```{r mba8, fig.cap = 'Figura 6: Variação Interanual da Taxa de Desemprego PNADC'}
+#interanual <- (macro/lag(macro,-12)-1)*100
+#Variacao Interanual do Desemprego
+composicao <- macro[,10] - lag(macro[,10],-12)
+autoplot(composicao) +
+  geom_bar(colour="black",
+           fill="darkblue", width=.1, stat="identity") +
+  xlab('') + ylab('p.p.') +
+  ggtitle('Variação da Taxa de Desemprego PNADCm
+          (mes t menos mes t-12)')
+
+```
+
+<br>
+
+#### Dessazonalização da taxa de desemprego
+
+Um dos grandes problemas da PNAD Contínua é que ela é uma série curta. Isso significa que não é possível usar técnicas econométricas mais sofisticadas. Contudo, é possível contornar o problema estimando o modelo dinâmico abaixo:
+
+<br>
+
+```{r mba9, fig.cap = 'Figura 7: Taxa de Desemprego na PNAD Contínua mensal (% PEA)'}
+
+library(dynlm)
+#Dessazonalizacao da taxa de desemprego
+dynlm <- dynlm(macro[,10]~season(macro[,10]))
+desemprego_sa <- residuals(dynlm) + mean(fitted(dynlm))
+pnadc.desemprego <- cbind(desemprego, desemprego_sa)
+
+p <- autoplot(pnadc.desemprego, facets=F,
+              main='Taxa de Desemprego na PNAD Continua mensal (% PEA)', xlab = "%", ylab = "Tempo")
+p + scale_colour_hue("Legenda") + scale_size_manual(values = 2)+
+  theme(legend.position="bottom")
+
+```
+
+<br>                         
