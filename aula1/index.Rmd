@@ -347,6 +347,7 @@ library(png)
 library(rbcb)
 library(Quandl)
 library(tidyverse)
+library(plotly)
 
 ## Taxa de Juros
 #selic <- Quandl('BCB/1178', order='asc', start_date='2012-06-01')
@@ -792,14 +793,14 @@ Aqui são analisadas informações do Comércio Restrito, do Comércio Ampliado 
 
 O varejo ampliado tem 10 setores, pois inclui ao varejo restrito material de construção e Veículos, motocicletas, partes e peças.
 
-```{r mba16}
+```{r mba16, fig.cap = 'Figura 13: Variação Mensal Pesquisa Mensal do Comércio (PMC-IBGE)'}
 
 library(tidyverse)
 
 #https://sidra.ibge.gov.br/tabela/8185
-restrito <- read.csv2('arquivo07.csv', header=T, sep=";",dec=".", skip=4)[,-1]
+restrito <- read.csv2('arquivo07.csv', header=T, sep=";",dec=".", skip=4)
 
-colnames(restrito) <- c('Receita', 'Volume', 'Receita SA', "Volume SA")
+colnames(restrito) <- c('X', 'Receita', 'Volume', 'Receita SA', "Volume SA")
 
 restrito <- select(restrito, Volume, 'Volume SA', Receita, 'Receita SA')
 
@@ -807,9 +808,9 @@ restrito <- ts(restrito[-nrow(restrito),], start=c(2000,1), freq=12)
 
 ## Importar o arquivo do comercio ampliado
 #https://sidra.ibge.gov.br/tabela/8186
-ampliado <- read.csv2('arquivo08.csv', header=T, sep=";",dec=".", skip=4)[,-1]
+ampliado <- read.csv2('arquivo08.csv', header=T, sep=";",dec=".", skip=4)
 
-colnames(ampliado) <- c('Receita', 'Volume', 'Receita SA', "Volume SA")
+colnames(ampliado) <- c('X', 'Receita', 'Volume', 'Receita SA', "Volume SA")
 
 ampliado <- select(ampliado, Volume, 'Volume SA', Receita, 'Receita SA')
 
@@ -817,11 +818,10 @@ ampliado <- ts(ampliado[-nrow(ampliado),], start=c(2003,1), freq=12)
 
 ## Importar o arquivo 'desagregado'
 #https://sidra.ibge.gov.br/tabela/8188
-desagregado <- read.csv2('arquivo09.csv', header=T, sep=";",dec=".",
-                         skip=5)
-desagregado <- desagregado[,-1]
-desagregado <- ts(desagregado[-nrow(desagregado),], start=c(2000,1),
-                  freq=12)
+desagregado <- read.csv2('arquivo09.csv', header=T, sep=";", dec=".", skip=5)
+desagregado <- desagregado[-nrow(desagregado),]
+desagregado <- desagregado[,c(2:ncol(desagregado))]
+desagregado <- ts(desagregado, start=c(2000,1), freq=12)
 
 ## Nomes das categorias desagregadas do comercio
 names.desagregado <- c("Combustiveis e lubrificantes",	"Hipermercados, supermercados, produtos alimenticios, bebidas e fumo",	"Hipermercados e supermercados", "Tecidos, vestuario e calcados", "Moveis e eletrodomesticos",	"Artigos farmaceuticos, medicos, ortopedicos, de perfumaria e cosmeticos", "Livros, jornais, revistas e papelaria", "Equipamentos e materiais para escritorio, informatica e comunicacao", "Outros artigos de uso pessoal e domestico", "Veículos, motocicletas, partes e peças", "Material de construção")
@@ -889,7 +889,7 @@ gtsplot(plot1, dates=dates)
 
 <br>
 
-``` {r mba17}
+``` {r mba17, fig.cap = 'Figura 14: Pesquisa Mensal do Comércio (PMC-IBGE) - Variação em relação ao mesmo mês do ano anterior'}
 dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
 plot2 <- window(interanual, start=c(2003,1))
 gtsplot(plot2, dates=dates)
@@ -901,7 +901,7 @@ gtsplot(plot2, dates=dates)
 
 <br>
 
-``` {r mba18}
+``` {r mba18, fig.cap = 'Figura 15: Pesquisa Mensal do Comércio (PMC-IBGE) - Variação acumulada em 12 meses'}
 dates <- seq(as.Date('2003-12-01'), as.Date('2022-12-01'), by='1 month')
 plot3 <- window(anual, start=c(2003,12))
 gtsplot(plot3, dates=dates)
@@ -926,7 +926,7 @@ datatable(round(table_pmc,2),
 
 <br>
 
-````{r mba20, echo=FALSE}
+```{r mba20, echo=FALSE}
 ######## Variacao mensal ##########
 
 vmensal.des.vol <- (volumesa.desagregado/
@@ -942,13 +942,13 @@ colnames(trim.des.vol) <- colnames(vmensal.des.vol)
 
 ############## Interanual ###############
 
-interanual.des.vol <- (volume.desagregado/stats::lag(volume.desagregado,-12)-1)*100
+interanual.des.vol <- (volumesa.desagregado/stats::lag(volumesa.desagregado,-12)-1)*100
 
 colnames(interanual.des.vol) <- names.desagregado
 
 ########## Anual ############
 
-anual.des.vol <- volume.desagregado
+anual.des.vol <- volumesa.desagregado
 
 anual.des.vol <- (((anual.des.vol+stats::lag(anual.des.vol,-1)+stats::lag(anual.des.vol,-2)+stats::lag(anual.des.vol,-3)+stats::lag(anual.des.vol,-4)+stats::lag(anual.des.vol,-5)+stats::lag(anual.des.vol,-6)+stats::lag(anual.des.vol,-7)+stats::lag(anual.des.vol,-8)+stats::lag(anual.des.vol,-9)+stats::lag(anual.des.vol,-10)+stats::lag(anual.des.vol,-11))/12)/((stats::lag(anual.des.vol,-12)+stats::lag(anual.des.vol,-13)+stats::lag(anual.des.vol,-14)+stats::lag(anual.des.vol,-15)+stats::lag(anual.des.vol,-16)+stats::lag(anual.des.vol,-17)+stats::lag(anual.des.vol,-18)+stats::lag(anual.des.vol,-19)+stats::lag(anual.des.vol,-20)+stats::lag(anual.des.vol,-21)+stats::lag(anual.des.vol,-22)+stats::lag(anual.des.vol,-23))/12)-1)*100
 
@@ -962,7 +962,8 @@ table.des <- cbind(table.mes, table.tri, table.int, table.ano)
 colnames(table.des) <- c('Mensal', 'Trimestral', 'Interanual', '12 meses')
 
 datatable(round(table.des,2),
-          options = list(dom = 't',
+          options = list(pageLength = 11,
+            dom = 't',
                          columnDefs = 
                            list(list(className = 'dt-center', targets = "_all"))))
 ```
@@ -973,7 +974,7 @@ datatable(round(table.des,2),
 
 <br>
 
-```{r mba21}
+```{r mba21, fig.cap = 'Figura 16: Índice de Confiança do Consumidor'}
 #dados_sgs <- GetBCBData::gbcbd_get_series(
 #id = c("Confiança do Consumidor" = 4393),
 #first.date = "2000-01-01",
@@ -994,5 +995,130 @@ grid(col='gray0')
 mtext('Indice de Confianca do Consumidor', side=3, line=1, font=2)
 ```
 
+<br>
+
+### A Pesquisa Industrial Mensal (PIM-IBGE)
+
+<br>
+Desde a década de 1970, o IBGE divulga a Pesquisa Industrial Mensal - Produção Física (PIM-PF), que busca investigar o comportamento do produto real das indústrias extrativa e de transformação.
+<br>
+
+```{r mba22, fig.cap = 'Figura 17: PIM-IBGE Crescimento acumulado em 12 meses (%a.a)'}
+#Pesquisa com a Industria
+#https://sidra.ibge.gov.br/tabela/8159
+pim_t <- read.csv2('arquivo10.csv', header=T, sep=';', 
+                 dec='.', skip=4)[,-1]
+
+colnames(pim_t) <- c('INDGERAL', 'INDEXT', 'INDTRANSF',	'ALIMENTOS', 'TEXTEIS', 'FARMACEUTICOS', 'METALURGIA', 'MAQUINAS', 'VEICULOS','INDGERAL', 'INDEXT', 'INDTRANSF',	'ALIMENTOS', 'TEXTEIS', 'FARMACEUTICOS', 'METALURGIA', 'MAQUINAS', 'VEICULOS')
+
+pim <-   ts(pim_t[-nrow(pim_t),c(1:9)], start=c(2002,01), freq=12)
+
+pim_sa <- ts(pim_t[-nrow(pim_t),c(10:18)], start=c(2002,01), freq=12)
+
+### Margem PIM-Pf
+
+pim.mensal <- (pim_sa/stats::lag(pim_sa,-1)-1)*100
+colnames(pim.mensal) <- colnames(pim_sa)
+
+### Interanual PIm-PF
+
+pim.intanual <- (pim/stats::lag(pim,-12)-1)*100
+colnames(pim.intanual) <- colnames(pim)
+
+### Acumulado em 12 meses
+
+anual <- pim_sa
+anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
+            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
+            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
+              stats::lag(anual,-11))/12)/
+            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
+                stats::lag(anual,-14)+stats::lag(anual,-15)
+              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
+              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
+              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
+colnames(anual) <- colnames(pim)
+
+par(mfrow=c(1,1))
+#Conjuntura11
+plot(anual[,1], xlab='', ylab='% a.a.', lwd=3,
+     main='Crescimento acumulado em 12 meses (% a.a.)')
+axis(2, at=c(2003:2023))
+grid(col='grey0')
+
+```
+
+<br>
+
+### A Pesquisa Industrial Mensal (PIM-IBGE): variação mensal
+
+<br>
+
+```{r mba23, fig.cap = 'Figura 18: PIM Variação Mensal'}
+#window <- window(pim.mensal, start=c(2002,02))
+dates <- seq(as.Date('2002-02-01'), as.Date('2022-12-01'), by='1 month')
+#Conjuntura12
+gtsplot(pim.mensal,dates=dates)
+```
+
+<br>
+
+### A Pesquisa Industrial Mensal (PIM-IBGE): variação interanual
+
+<br>
+
+```{r mba24, fig.cap = 'Figura 19: PIM Variação mesmo mês do ano anterior'}
+
+#window <- window(pim.intanual, start=c(2003,01))
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+#Conjuntura13
+gtsplot(pim.intanual,dates=dates)
+```
+
+<br>
+
+### A Pesquisa Industrial Mensal (PIM-IBGE): variação Anual
+
+<br>
+
+```{r mba25, fig.cap = 'Figura 20: PIM Acumulado Anual'}
+dates <- seq(as.Date('2003-12-01'), as.Date('2022-12-01'), by='1 month')
+#Conjuntura14
+gtsplot(anual,dates=dates)
+```
+
+<br>
+
+### Utilização da Capacidade Instalada da Indústria 
+
+Uma última variável de nível de atividade a ser analisada é a Utilização da Capacidade Instalada (UCI) da indústria. Essa métrica é importante para verificar o uso do capital, medindo assim o grau de ociosidade na economia. Para isto é usada a série 24352 do Sistema de Séries Temporais do Banco Central, que mede a UCI da indústria de transformação, fornecida pela Fundação Getúlio Vargas (FGV).
+
+<br>
+
+```{r mba26, fig.cap = 'Figura 21: Utilização da capacidade instalada – indústria de transformação (FGV)'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("IBC-Br" = 24352),
+#first.date = "2001-01-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo11.csv')
+
+uci <- read.csv2('arquivo11.csv',
+                       header=T, sep=';',
+                  dec=",")[,-c(1,2)]
+
+dates <- seq(as.Date('2001-01-01'), as.Date('2023-01-01'), by='1 month')
+
+df <- data.frame(time=dates, uci=uci)
+uci_plot <- ggplot(df, aes(x=time))+
+  geom_line(aes(y=uci), linewidth=.8, colour='blue')+
+  xlab('Tempo')+ylab('%')+
+  theme_classic() #Definindo tema
+
+ggplotly(uci_plot)
+```
 
 <br>
