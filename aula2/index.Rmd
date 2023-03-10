@@ -102,9 +102,10 @@ library(grid)
 library(png)
 library(rbcb)
 library(Quandl)
-#library(tidyverse)
+library(tidyverse)
 library(plotly)
 library(BMR)
+library(plotly)
 #datamt0 <- get_sidra(api='/t/6022/n1/all/v/606/p/all') #Populacao
 #datamt1 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32385') #PIA+PD+PEA
 #datamt2 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32386')#PIA
@@ -270,7 +271,7 @@ Uma outra métrica interessante para análise da situação do desemprego pode s
 ```{r mba8, fig.cap = 'Figura 6: Variação Interanual da Taxa de Desemprego PNADC'}
 #interanual <- (macro/lag(macro,-12)-1)*100
 #Variacao Interanual do Desemprego
-composicao <- macro[,10] - lag(macro[,10],-12)
+composicao <- macro[,10] - stats::lag(macro[,10],-12)
 autoplot(composicao) +
   geom_bar(colour="black",
            fill="darkblue", width=.1, stat="identity") +
@@ -303,4 +304,228 @@ p + scale_colour_hue("Legenda") + scale_size_manual(values = 2)+
 
 ```
 
-<br>                         
+<br>
+
+### Rendimentos
+
+<br>
+
+Uma questão importante em relação ao mercado de trabalho é o rendimento recebido pela força de trabalho. Para fazer esta análise os dados da evolução do Rendimento médio de todos os trabalhos, efetivamente recebido no mês de referência, pelas pessoas de 14 anos ou mais de idade, ocupadas na semana de referência, com rendimento de trabalho (Reais), disponibilizado pelo IBGE pode ser utilizado. 
+
+
+```{r mba10, fig.cap = 'Figura 8: Rendimentos Reais'}
+renda <- read.csv(file='arquivo12c.csv',
+                header=T,sep=";", skip=3)
+colnames(renda)[2] <- "renda"
+renda <- ts(renda[-nrow(renda),-1], start=c(2012,02), freq=12)
+
+#Analise do PIB e seus componentes
+dates <- seq(as.Date('2012-02-01'), as.Date('2022-11-01'), by='1 month')
+
+renda <- data.frame(time=dates, renda)
+renda1 <- ggplot(renda, aes(x=time))+
+  geom_line(aes(y=renda), color="darkblue", linewidth=.6)+
+  scale_y_continuous(limits=c(2000, 3500), n.breaks = 10)+
+  xlab('')+ylab('Reais')+
+  theme(legend.position = 'top')
+
+ggplotly(renda1)
+```
+
+<br> 
+
+#### Rendimentos - Variação Marginal
+
+<br>
+
+``` {r mba11, fig.cap = 'Figura 9: Variação Marginal'}
+### Variacao Marginal (comparo com o trimestre anterior)
+margem <- (renda[,2]/stats::lag(renda[,2],-1)-1)*100
+
+dates <- seq(as.Date('2012-03-01'), as.Date('2022-11-01'), by='1 month')
+
+margem <- data.frame(time=dates, margem)
+margem1 <- ggplot(margem, aes(x=time))+
+  geom_line(aes(y=margem), color="darkblue", linewidth=.6)+
+  xlab('')+ylab('Variação %')+
+  theme(legend.position = 'top')
+
+ggplotly(margem1)
+```
+
+<br>
+
+#### Rendimentos - Variação Anual
+
+<br>
+
+``` {r mba12, fig.cap = 'Figura 9: Variação Anual'}
+### Variacao Marginal (comparo com o trimestre anterior)
+anual <- (renda[,2]/stats::lag(renda[,2],-12)-1)*100
+
+dates <- seq(as.Date('2013-02-01'), as.Date('2022-11-01'), by='1 month')
+
+anual <- data.frame(time=dates, anual)
+anual1 <- ggplot(anual, aes(x=time))+
+  geom_line(aes(y=anual), color="darkblue", linewidth=.6)+
+  xlab('')+ylab('Variação %')+
+  theme(legend.position = 'top')
+
+ggplotly(anual1)
+```
+
+<br>
+
+### Inflação
+
+<br>
+
+Nível geral de preços é uma medida acumulada do comportamento agregado dos preços de bens e serviços de uma economia em determinado período do tempo, geralmente expressa por meio de números índices. 
+
+A inflação é a taxa de crescimento do nível geral de preços entre dois períodos distintos.
+
+Ao contrário do que o senso comum acredita, o aumento no preço de um determinado bem ou serviço não pode ser caracterizado com o que estamos definindo como inflação. Para ser considerado inflação, é necessário que haja um aumento persistente e generalizado de preços.
+
+No curto prazo, diversos fatores podem afetar a taxa de crescimento dos preços, desde uma quebra de
+safra, que pode gerar um aumento localizado nos preços de alimentos, o que gera uma pressão inflacionária, até questões cambiais que aumentem o custo de importação de insumos em diversas cadeias produtivas, acaba gerando também uma pressão inflacionária. No curto prazo os economistas usam a Curva de Phillips para verificar a dinâmica da inflação.
+
+$$
+\pi_{t} = \alpha_{0} + \alpha_{1}\pi_{t-1} + \alpha_{2}E_{t}\pi_{t+1} + \alpha_{3}h_{t-1} + \alpha_{4}\Delta\epsilon_{t} + \varepsilon_{t}^{s} 
+\tag{7}
+$$
+
+onde $\pi_{t}$ é a inflação, $\Delta\epsilon_{t}$ é a primeira diferença da taxa de câmbio nominal e $\varepsilon_{t}^{s}$ é um choque de oferta.
+
+Para entender inflação no longo prazo, pode-se usar a equação de Cambridge, a partir do equilíbrio entre demanda 
+
+$$
+M^{d} = kPY
+\tag{8}
+$$ 
+e oferta de moeda 
+
+$$
+M^{s} = M
+\tag{9}
+$$ 
+
+Igualando (8) e (9) e reordenando os termos, chega-se à equação:
+
+$$
+P = \frac{M}{kY}
+\tag{10}
+$$
+	
+<br>
+
+Aplicando logaritmo e derivando em relação ao tempo, tem-se que:
+
+$$
+\dot{P} = \dot{M} - \dot{k} - \dot{Y}
+\tag{11}
+$$
+Como $k$ (o coeficiente de Cambridge) é o inverso da velocidade renda da moeda, por hipótese, constante, tem-se que:
+
+$$
+\dot{P} = \dot{M} - \dot{Y}
+\tag{12}
+$$
+
+Assim, **a taxa de crescimento do nível geral de preços é dada pela diferença entre a taxa de crescimento dos meios de pagamento e do produto real da economia**.
+
+Se a inflação é determinada positivamente pela taxa de crescimento dos meios de pagamento, fica claro que a condução frouxa da política monetária gera mais inflação. Dito de outra forma, pode-se relacionar a taxa de crescimento dos meios de pagamento à inflação através da taxa de juros. 
+
+A política monetária via taxa de juros é o instrumento para controlar a inflação, consequentemente. política monetária será expansionista se a taxa de juros de curto prazo estiver abaixo daquela considerada de equilíbrio entre oferta e demanda por "fundos emprestáveis", como dito por Wicksell (1898). Assim, o Bacen deve calibrar a taxa básica de juros em torno daquela considerada de equilíbrio, natural ou neutra, de modo a manter a estabilidade de preços na economia. 
+
+<br>
+
+#### Nível Geral de Preços ao redor do mundo
+
+<br>
+
+O Banco Mundial disponibiliza um conjunto de dados sobre Nível geral de preços e inflação em diversos países. Assim, basta baixar o CPI (Consumer Price Index) e depois calcular a inflação comparando dois períodos de tempo. Os dados mostrados são de 2000 a 2021, último dado disponível. 
+
+```{r mba13}
+#library(quantmod)
+library(wbstats)
+#library(GetQuandlData)
+# https://cran.r-project.org/web/packages/GetQuandlData/vignettes/getquandldata-vignette-introduction.html
+
+#db_id <- 'RATEINF'
+#my_api <- readLines('At73gR4AzKsdTGE5JoaU')
+
+#df <- get_database_info(db_id, my_api)
+
+#head(df)
+
+	
+CPI <- wb_data("FP.CPI.TOTL", start_date = 2000, end_date = 2022)
+
+BRA_CPI <- filter (CPI, iso3c == 'BRA')
+colnames(BRA_CPI)[5] <- 'BRA_CPI'
+USA_CPI <- filter (CPI, iso3c == 'USA')
+colnames(USA_CPI)[5] <- 'USA_CPI'
+DEU_CPI <- filter (CPI, iso3c == 'DEU')
+colnames(DEU_CPI)[5] <- 'DEU_CPI'
+CAN_CPI <- filter (CPI, iso3c == 'CAN')
+colnames(CAN_CPI)[5] <- 'CAN_CPI'
+FRA_CPI <- filter (CPI, iso3c == 'FRA')
+colnames(FRA_CPI)[5] <- 'FRA_CPI'
+ITA_CPI <- filter (CPI, iso3c == 'ITA') 
+colnames(ITA_CPI)[5] <- 'ITA_CPI'
+JPN_CPI <- filter (CPI, iso3c == 'JPN') 
+colnames(JPN_CPI)[5] <- 'JPN_CPI'
+GBR_CPI <- filter (CPI, iso3c == 'GBR')
+colnames(GBR_CPI)[5] <- 'GBR_CPI'
+MEX_CPI <- filter (CPI, iso3c == 'MEX')
+colnames(MEX_CPI)[5] <- 'MEX_CPI'
+
+CPI <- tibble(BRA_CPI[,5], USA_CPI[,5], DEU_CPI[,5], CAN_CPI[,5], FRA_CPI[,5], ITA_CPI[,5], JPN_CPI[,5], GBR_CPI[,5], MEX_CPI[,5])
+
+CPI <- ts(CPI,start=c(2000))
+
+dates <- seq(as.Date('2000-01-01'),
+             as.Date('2021-01-01'), by='1 year')
+gtsplot(CPI, dates=dates)
+
+```
+
+<br>
+
+De maneira geral, o Nível Geral de Preços apresenta uma tendência positiva. Isto é, os preços tendem a subir ao longo do tempo. A velocidade desse crescimento vai depender, em termos estruturais, da condução da política monetária e, em termos conjunturais, de fatores especificados na Curva de Phillips.
+
+<br>
+
+#### Inflação ao redor do mundo
+
+<br>
+
+```{r mba14}
+
+INF <- (CPI/stats::lag(CPI,-1)-1)*100
+
+inflacao <- ts(INF,start=c(2001))
+dates <- seq(as.Date('2001-01-01'),
+             as.Date('2021-01-01'), by='1 year')
+gtsplot(inflacao, dates=dates)
+```
+
+<br>
+
+#### Inflação no Brasil
+
+<br>
+
+O Brasil possui diversos índices de inflação com metodologias diferentes, calculados por institutos diferentes. Aqui será trabalhado o Índice de Preços ao Consumidor Amplo (IPCA), o índice que serve de referência para o regime de metas de inflação (Vigente no país desde 1999, conforme exposto no decreto **https://www.planalto.gov.br/ccivil_03/decreto/d3088.htm**).
+
+O Índice de Preços ao Consumidor Amplo (IPCA) faz parte do Sistema Nacional de Índices de Preços ao Consumidor (SNIPC).
+
+A periodicidade do IPCA é mensal, abrangendo as regiões metropolitanas de Belém, Fortaleza, Recife, Salvador, Belo Horizonte, Rio de Janeiro, São Paulo, Curitiba, Vitória e Porto Alegre, Brasília e municípios de Goiânia e Campo Grande.
+
+O IPCA é construído de forma hierarquizada, sendo dividido em grupos, subgrupos, itens e subitens. Desde agosto de 1999, são nove os grupos: alimentos e bebidas, habitação, artigos de residência, vestuário, transportes, comunicação, saúde e cuidados pessoais, despesas pessoais e educação. 
+
+O peso de cada um desses grupos no índice cheio é definido mensalmente, de acordo com os gastos das famílias em diferentes bens e serviços. Estes gastos, por sua vez, são captados pela Pesquisa de Orçamento Familiar (POF).
+
+A cada grupo estarão, então, vinculados subgrupos, itens e subitens. Atualmente, o IPCA possui 373 subitens, distribuídos por 52 itens e 19 subgrupos. Todos os meses, então, o IBGE calculará a variação do preço de cada um desses subitens em relação ao mês anterior, bem como verificará o peso dele no índice cheio. O somatório do produto entre variação mensal e peso de todos os 373 subitens dará a variação mensal do índice cheio.
+
+<br>
