@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
   warning    = FALSE,
   message    = FALSE,
   comment    = NA,
-  fig.width  = 8, 
+  fig.width  = 10, 
   fig.height = 6,
   fig.align  = "center",
   comment    = "#",
@@ -106,6 +106,8 @@ library(tidyverse)
 library(plotly)
 library(BMR)
 library(plotly)
+library(GetBCBData)
+library(easyGgplot2)
 #datamt0 <- get_sidra(api='/t/6022/n1/all/v/606/p/all') #Populacao
 #datamt1 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32385') #PIA+PD+PEA
 #datamt2 <- get_sidra(api='t/6318/n1/all/v/1641/p/all/c629/32386')#PIA
@@ -313,7 +315,7 @@ p + scale_colour_hue("Legenda") + scale_size_manual(values = 2)+
 Uma questão importante em relação ao mercado de trabalho é o rendimento recebido pela força de trabalho. Para fazer esta análise os dados da evolução do Rendimento médio de todos os trabalhos, efetivamente recebido no mês de referência, pelas pessoas de 14 anos ou mais de idade, ocupadas na semana de referência, com rendimento de trabalho (Reais), disponibilizado pelo IBGE pode ser utilizado. 
 
 
-```{r mba10, fig.cap = 'Figura 8: Rendimentos Reais'}
+```{r mba10, fig.cap = 'Figura 8: Rendimentos Reais', fig.width  = 9}
 renda <- read.csv(file='arquivo12c.csv',
                 header=T,sep=";", skip=3)
 colnames(renda)[2] <- "renda"
@@ -338,7 +340,7 @@ ggplotly(renda1)
 
 <br>
 
-``` {r mba11, fig.cap = 'Figura 9: Variação Marginal'}
+``` {r mba11, fig.cap = 'Figura 9: Variação Marginal', fig.width  = 9}
 ### Variacao Marginal (comparo com o trimestre anterior)
 margem <- (renda[,2]/stats::lag(renda[,2],-1)-1)*100
 
@@ -359,7 +361,7 @@ ggplotly(margem1)
 
 <br>
 
-``` {r mba12, fig.cap = 'Figura 9: Variação Anual'}
+``` {r mba12, fig.cap = 'Figura 10: Variação Anual', fig.width  = 9}
 ### Variacao Marginal (comparo com o trimestre anterior)
 anual <- (renda[,2]/stats::lag(renda[,2],-12)-1)*100
 
@@ -445,7 +447,7 @@ A política monetária via taxa de juros é o instrumento para controlar a infla
 
 O Banco Mundial disponibiliza um conjunto de dados sobre Nível geral de preços e inflação em diversos países. Assim, basta baixar o CPI (Consumer Price Index) e depois calcular a inflação comparando dois períodos de tempo. Os dados mostrados são de 2000 a 2021, último dado disponível. 
 
-```{r mba13}
+```{r mba13, fig.cap = 'Figura 11: Evolução Índices de Preços em Países selecionados'}
 #library(quantmod)
 library(wbstats)
 #library(GetQuandlData)
@@ -457,32 +459,33 @@ library(wbstats)
 #df <- get_database_info(db_id, my_api)
 
 #head(df)
+#CPI <- wb_data("FP.CPI.TOTL", start_date = 2000, end_date = 2022)
 
-	
-CPI <- wb_data("FP.CPI.TOTL", start_date = 2000, end_date = 2022)
+#BRA_CPI <- filter (CPI, iso3c == 'BRA')
+#colnames(BRA_CPI)[5] <- 'BRA_CPI'
+#USA_CPI <- filter (CPI, iso3c == 'USA')
+#colnames(USA_CPI)[5] <- 'USA_CPI'
+#DEU_CPI <- filter (CPI, iso3c == 'DEU')
+#colnames(DEU_CPI)[5] <- 'DEU_CPI'
+#CAN_CPI <- filter (CPI, iso3c == 'CAN')
+#colnames(CAN_CPI)[5] <- 'CAN_CPI'
+#FRA_CPI <- filter (CPI, iso3c == 'FRA')
+#colnames(FRA_CPI)[5] <- 'FRA_CPI'
+#ITA_CPI <- filter (CPI, iso3c == 'ITA') 
+#colnames(ITA_CPI)[5] <- 'ITA_CPI'
+#JPN_CPI <- filter (CPI, iso3c == 'JPN') 
+#colnames(JPN_CPI)[5] <- 'JPN_CPI'
+#GBR_CPI <- filter (CPI, iso3c == 'GBR')
+#colnames(GBR_CPI)[5] <- 'GBR_CPI'
+#MEX_CPI <- filter (CPI, iso3c == 'MEX')
+#colnames(MEX_CPI)[5] <- 'MEX_CPI'
 
-BRA_CPI <- filter (CPI, iso3c == 'BRA')
-colnames(BRA_CPI)[5] <- 'BRA_CPI'
-USA_CPI <- filter (CPI, iso3c == 'USA')
-colnames(USA_CPI)[5] <- 'USA_CPI'
-DEU_CPI <- filter (CPI, iso3c == 'DEU')
-colnames(DEU_CPI)[5] <- 'DEU_CPI'
-CAN_CPI <- filter (CPI, iso3c == 'CAN')
-colnames(CAN_CPI)[5] <- 'CAN_CPI'
-FRA_CPI <- filter (CPI, iso3c == 'FRA')
-colnames(FRA_CPI)[5] <- 'FRA_CPI'
-ITA_CPI <- filter (CPI, iso3c == 'ITA') 
-colnames(ITA_CPI)[5] <- 'ITA_CPI'
-JPN_CPI <- filter (CPI, iso3c == 'JPN') 
-colnames(JPN_CPI)[5] <- 'JPN_CPI'
-GBR_CPI <- filter (CPI, iso3c == 'GBR')
-colnames(GBR_CPI)[5] <- 'GBR_CPI'
-MEX_CPI <- filter (CPI, iso3c == 'MEX')
-colnames(MEX_CPI)[5] <- 'MEX_CPI'
+#CPI <- tibble(BRA_CPI[,5], USA_CPI[,5], DEU_CPI[,5], CAN_CPI[,5], FRA_CPI[,5], ITA_CPI[,5], JPN_CPI[,5], GBR_CPI[,5], MEX_CPI[,5])
 
-CPI <- tibble(BRA_CPI[,5], USA_CPI[,5], DEU_CPI[,5], CAN_CPI[,5], FRA_CPI[,5], ITA_CPI[,5], JPN_CPI[,5], GBR_CPI[,5], MEX_CPI[,5])
+#write.csv2(CPI, file='arquivo13.csv')
 
-CPI <- ts(CPI,start=c(2000))
+CPI <- ts(read.csv2('arquivo13.csv', header=T,
+                     sep=';')[,-1], start=c(2000))
 
 dates <- seq(as.Date('2000-01-01'),
              as.Date('2021-01-01'), by='1 year')
@@ -500,9 +503,11 @@ De maneira geral, o Nível Geral de Preços apresenta uma tendência positiva. I
 
 <br>
 
-```{r mba14}
+```{r mba14, fig.cap = 'Figura 12: Evolução Inflação em paises selecionados'}
 
 INF <- (CPI/stats::lag(CPI,-1)-1)*100
+
+colnames(INF) <- c('BRA_INF', 'USA_INF', 'DEU_INF', 'CAN_INF', 'FRA_INF', 'ITA_INF', 'JPN_INF', 'GBR_INF', 'MEX_INF')
 
 inflacao <- ts(INF,start=c(2001))
 dates <- seq(as.Date('2001-01-01'),
@@ -516,7 +521,7 @@ gtsplot(inflacao, dates=dates)
 
 <br>
 
-O Brasil possui diversos índices de inflação com metodologias diferentes, calculados por institutos diferentes. Aqui será trabalhado o Índice de Preços ao Consumidor Amplo (IPCA), o índice que serve de referência para o regime de metas de inflação (Vigente no país desde 1999, conforme exposto no decreto **https://www.planalto.gov.br/ccivil_03/decreto/d3088.htm**).
+O Brasil possui diversos índices de inflação com metodologias diferentes, calculados por institutos diferentes. Aqui será trabalhado o Índice de Preços ao Consumidor Amplo (IPCA), o índice que serve de referência para o regime de metas de inflação (Vigente no país desde 1999, conforme exposto no decreto **https://www.planalto.gov.br/ccivil_03/decreto/d3088.htm**.
 
 O Índice de Preços ao Consumidor Amplo (IPCA) faz parte do Sistema Nacional de Índices de Preços ao Consumidor (SNIPC).
 
@@ -526,6 +531,452 @@ O IPCA é construído de forma hierarquizada, sendo dividido em grupos, subgrupo
 
 O peso de cada um desses grupos no índice cheio é definido mensalmente, de acordo com os gastos das famílias em diferentes bens e serviços. Estes gastos, por sua vez, são captados pela Pesquisa de Orçamento Familiar (POF).
 
-A cada grupo estarão, então, vinculados subgrupos, itens e subitens. Atualmente, o IPCA possui 373 subitens, distribuídos por 52 itens e 19 subgrupos. Todos os meses, então, o IBGE calculará a variação do preço de cada um desses subitens em relação ao mês anterior, bem como verificará o peso dele no índice cheio. O somatório do produto entre variação mensal e peso de todos os 373 subitens dará a variação mensal do índice cheio.
+A cada grupo estarão, então, vinculados subgrupos, itens e subitens. Atualmente, o IPCA possui 377 subitens, distribuídos por 52 itens e 19 subgrupos. Todos os meses, então, o IBGE calculará a variação do preço de cada um desses subitens em relação ao mês anterior, bem como verificará o peso dele no índice cheio. O somatório do produto entre variação mensal e peso de todos os 373 subitens dará a variação mensal do índice cheio.
 
 <br>
+
+```{r mba15, fig.width  = 9}
+#datainfl0 <- get_sidra(api='t/1737/n1/all/v/2266/p/all/d/v2266%2013') #Populacao
+
+data <- ts(read.csv2('arquivo13a.csv', header=T,
+                     sep=';', dec='.', skip=3)[,-1],
+           start=c(1980,12), freq=12)
+
+data <- na.omit(data) %>%
+        window(start = c(1997,1))
+
+colnames(data) <- c('IPCA', 'IPCA-Var Mensal', 'IPCA - Acumulado')
+
+dates <- seq(as.Date('1997-01-01'), as.Date('2023-02-01'), by='1 month')
+
+ipca <- data.frame(time=dates, ipca=data[,1])
+ipca1 <- ggplot(ipca, aes(x=time))+
+  geom_line(aes(y=ipca), color="darkblue", linewidth=.6)+
+  xlab('Meses do Ano')+ylab('IPCA - Número Índice')+
+  theme(legend.position = 'top')
+
+ggplotly(ipca1)
+
+ipca_mes <- data.frame(time=dates, ipca_mes=data[,2])
+ipca1_mes <- ggplot(ipca_mes, aes(x=time))+
+  geom_line(aes(y=ipca_mes), color="darkblue", linewidth=.6)+
+  xlab('Meses do Ano')+ylab('IPCA - Variação Mensal (%)')+
+  theme(legend.position = 'top')
+
+ggplotly(ipca1_mes)
+
+ipca_ano <- data.frame(time=dates, ipca_ano=data[,3])
+ipca1_ano <- ggplot(ipca_ano, aes(x=time))+
+  geom_line(aes(y=ipca_ano), color="darkblue", linewidth=.6)+
+  xlab('Meses do Ano')+ylab('IPCA - Variação Acumulada em 12 meses (%)')+
+  theme(legend.position = 'top')
+
+ggplotly(ipca1_ano)
+```
+
+<br>
+
+#### IPCA por Grupos
+
+A variação mensal dos nove grupos, como mostrado abaixo, não diz muita coisa sobre o comportamento dos mesmos ao longo do tempo. Já com relação aos pesos, é possível, mesmo com variação mensal, obter algumas tendências. 
+
+<br>
+
+```{r mba16}
+
+ipca <- ts(read.csv(file='arquivo14.csv', header=T,sep=";",dec=".")[,-1], start=c(1999,08), freq=12)
+
+dates <- seq(as.Date('2003-02-01'), as.Date('2023-02-01'), by='1 month')
+#Conjuntura 23
+gtsplot(window(ipca[,c(1,4:11)], start=c(2003,02)), dates=dates)
+#Conjuntura 24
+gtsplot(window(ipca[,c(12,15:22)], start=c(2003,02)), dates=dates)
+
+```
+<br>
+
+Para verificar se um determinado grupo tem pressionado mais ou menos o índice cheio, uma opção é acumular a variação mensal dos últimos 12 meses. Com isso, é possível verificar de uma forma melhor se há ou não pressão ao longo do tempo.
+
+<br>
+
+```{r mba17}
+####### Variacoes acumuladas em 12 meses dos grupos ########
+fator <- (1+(ipca[,c(1,4:11)]/100))
+vanual <- (fator*stats::lag(fator,-1)*stats::lag(fator,-2)*stats::lag(fator,-3)*stats::lag(fator,-4)*stats::lag(fator,-5)*stats::lag(fator,-6)*stats::lag(fator,-7)*stats::lag(fator,-8)*stats::lag(fator,-9)*stats::lag(fator,-10)*stats::lag(fator,-11)-1)*100
+colnames(vanual) <- colnames(ipca[,c(1,4:11)])
+
+############ GRAFICOS DOS GRUPOS NO ACUMULADO EM 12 MESES #########
+dates <- seq(as.Date('2003-02-01'), as.Date('2023-02-01'), by='1 month')
+gtsplot(window(vanual,start=c(2003,2)), dates=dates)
+```
+
+<br>
+
+#### IPCA por Item (Manga e Uva)
+
+<br>
+
+```{r mba18}
+dates <- seq(as.Date('2003-02-01'), as.Date('2023-02-01'), by='1 month')
+#Conjuntura 23
+gtsplot(window(ipca[,c(2:3)], start=c(2003,02)), dates=dates)
+#Conjuntura 24
+gtsplot(window(ipca[,c(13:14)], start=c(2003,02)), dates=dates)
+```
+
+<br>
+
+#### Contribuicoes Mensais para o indice cheio
+
+<br>
+
+Com a variação mensal e o peso dos 9 grupos do IPCA e, a partir da contribuiçã de cada um, se obtém a variação mensal do índice cheio.
+
+<br>
+
+```{r mba19}
+contribuicao <- ipca[,c(1,4:11)]*ipca[,c(12,15:22)]/100
+colnames(contribuicao) <- colnames(ipca[,c(1,4:11)])
+
+##### O IPCA sera a soma das contribuicoes de cada grupo #####
+ipcamensal <- ts(round(apply(contribuicao, MARGIN=1, FUN=sum), digits=2), start=c(1999,8), freq=12)
+
+plot(ipcamensal, bty='l', col='red', xlab='', ylab='% a.m.',
+     main='IPCA Mensal')
+
+########### TABELA COM AS CONTRIBUICOES DOS ULTIMOS MESES ###########
+contribuicao <- tail(round(cbind(ipcamensal,contribuicao), digits=2), n=6)
+contribuicao <- t(contribuicao)
+colnames(contribuicao) <- c('Setembro/18', 'Outubro/22', 'Novembro/22', 'Dezembro/22', 'Janeiro/23', 'Fevereiro/23')
+rownames(contribuicao) <- c('IPCA Mensal', 'Alimentos','Habitacao', 'Residencia', 'Vestuario', 'Transportes', 'Saude','Despesas Pessoais', 'Educacao', 'Comunicacao')
+
+datatable(contribuicao,
+          options = list(pageLength = 10,
+                         dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+#### Índice de Difusão
+
+<br>
+
+Índices de difusão mostram, em termos percentuais, a quantidade de bens e serviços que sofreram variação positiva em determinado período em relação a todos os bens e serviços avaliados. Como pode ser observado abaixo, 65,25% dos bens e serviços acompanhados pelo IPCA tiveram variação positiva de preços em fevereiro de 2023.
+
+<br>
+
+```{r mba20}
+subitens <- read.csv2('arquivo15.csv', header=T, sep=";", dec=".", skip=4, col.names=c('subitens', 'variacao', 'peso'))
+subitens <- na.omit(subitens)
+
+library(plyr)
+dados <- ifelse(subitens$variacao>0, 1,0)
+difusao <- round((count(dados==1)/length(dados))$freq[2]*100,digits=2)
+difusao
+```
+
+<br>
+
+### Mercado de Crédito
+
+<br>
+
+A função básica de um sistema financeiro é intermediar agentes deficitários e superavitários, estimulando a formação de poupança financeira, a transferência dessa poupança, bem como a promoção de liquidez. Esse sistema, por suposto, deve ser regulado por instituições governamentais capazes de
+garantir a sua estabilidade (FEIJÓ et al, 2008). 
+
+<br>
+
+![Figura 22: O Sistema Financeiro Nacional](img_r/sfn.png){width="100%"} 
+
+<br>
+
+Em particular, destaca-se o CMN, responsável por estabelecer a política monetária e credítica do país; o Banco Central, responsável pela estabilidade do poder de compra da moeda e do sistema financeiro; os Bancos Comerciais e as cooperativas de crédito **"instituições financeiras formadas pela associação de pessoas para prestar serviços financeiros exclusivamente aos seus associados. Os cooperados são ao mesmo tempo donos e usuários da cooperativa, participando de sua gestão e usufruindo de seus produtos e serviços. Nas cooperativas de crédito, os associados encontram os principais serviços disponíveis nos bancos, como conta-corrente, aplicações financeiras, cartão de crédito, empréstimos e financiamentos. Os associados têm poder igual de voto independentemente da sua cota de participação no capital social da cooperativa. O cooperativismo não visa lucros, os direitos e deveres de todos são iguais e a adesão é livre e voluntária."** 
+
+Um sistema financeiro razoavelmente desenvolvido envolve, em termos gerais, quatro mercados: monetário, de câmbio, de capitais (não vai ser tema deste curso) e de crédito.
+
+<br>
+
+#### Operações de crédito do SFN
+
+<br>
+
+A soma de todas as operações de empréstimos para pessoas físicas e jurídicas realizadas por instituições financeiras corresponde ao que se chama de mercado de crédito. 
+
+Nesta análise os dados trabalhados são obtidos das séries 20361 (Concessões de crédito - Total), 20362 (Concessões de crédito - Pessoas jurídicas - Total), 20633 (Concessões de crédito - Pessoas físicas - Total), 20634 (Concessões de crédito com recursos livres - Total) e 20685 (Concessões de crédito com recursos direcionados). 
+
+Por concessões entende-se "desembolsos referentes a empréstimos e financiamentos efetivamente creditados ao tomador do crédito. Os valores informados correspondem às concessões ocorridas no mês de referência". 
+
+* 20361 (Concessões de crédito - Total): 
+
+* 20362 (Concessões de crédito - Pessoas jurídicas - Total):
+
+* 20633 (Concessões de crédito - Pessoas físicas - Total): 
+
+* 20634 (Concessões de crédito com recursos livres - Total): Valor das novas operações de crédito contratadas no período de referência com taxas de juros livremente pactuadas entre mutuários e instituições financeiras. Não inclui operações referenciadas em taxas regulamentadas, operações vinculadas a recursos do Banco Nacional de Desenvolvimento Econômico e Social (BNDES) ou quaisquer outras lastreadas em recursos compulsórios ou governamentais.
+
+Nas operações livres, as instituições financeiras têm autonomia sobre a destinação dos recursos captados no mercado.
+
+* 20685 (Concessões de crédito com recursos direcionados): Valor das novas operações de crédito regulamentado pelo Conselho Monetário Nacional (CMN) ou vinculado a recursos orçamentários, contratadas no período de referência. Refere-se aos financiamentos com destinação específica, vinculados à comprovação da aplicação dos recursos voltados para a produção e investimento de médio e longo prazos, tendo como fonte de recursos parte das captações de depósitos à vista e de caderneta de poupança, e fundos e programas públicos. 
+
+**Modalidades do crédito livre:** Adiantamentos sobre contratos de câmbio (ACC), Antecipação de faturas de cartão de crédito, Arrendamento mercantil de veículos, Arrendamento mercantil de outros bens, Aquisição de veículos, Aquisição de outros bens, Capital de giro com prazo até 365 dias, Capital de giro com prazo superior a 365 dias, Capital de giro com teto rotativo, Cartão de crédito – compras à vista, Cartão de crédito – parcelado, Cartão de crédito – rotativo, Cheque especial, Compror, Conta garantida, Crédito pessoal consignado para aposentados e pensionistas do INSS, Crédito pessoal consignado para trabalhadores do setor privado, Crédito pessoal consignado para trabalhadores do setor público, Crédito pessoal não consignado, Crédito pessoal não consignado vinculado a renegociação de dívidas, Desconto de duplicatas, Desconto de cheques, Financiamento à exportação, Financiamento à importação, Outros créditos livres, Repasse externo, e Vendor.
+
+**Modalidades de crédito direcionado**: Financiamentos rurais com taxas reguladas, Financiamentos rurais com taxas de mercado, Financiamentos imobiliários com taxas reguladas, Financiamentos imobiliários com taxas de mercado, Financiamentos com recursos do BNDES para infraestrutura, Financiamentos com recursos do BNDES para agroindústria, Financiamentos com recursos do BNDES para capital de giro e exportações, Microcrédito, e Outros créditos direcionados.
+
+* Crédito livre:
+
+  + Adiantamentos sobre contratos de câmbio (ACC): antecipação parcial ou total de recursos vinculados a contratos de exportação, com o objetivo de financiar a produção das mercadorias a serem exportadas. Inclui as operações de adiantamentos de cambiais entregues (ACE).
+
+  + Antecipação de faturas de cartão de crédito: adiantamento de recursos a pessoas jurídicas com base em fluxo de caixa futuro vinculado a direitos creditórios sob a forma de faturas de cartão de crédito.
+
+  + Arrendamento mercantil (veículos / outros bens): operações de arrendamento mercantil (leasing) financeiro, em que o arrendador concede ao arrendatário a utilização do objeto do contrato de arrendamento (veículos / outros bens), com opção de compra ao final do contrato.
+
+  + Aquisição de bens (veículos / outros bens): financiamentos para compra de bens (veículos / outros bens) destinados à manutenção ou ao aumento da capacidade produtiva das pessoas jurídicas contratantes, configurando-se como investimento, ou ao consumo das pessoas físicas contratantes. No caso de veículos, o contrato deve conter cláusula de alienação fiduciária, com o bem financiado constituindo a garantia da operação. Os financiamentos de veículos destinados à formação de estoques comerciais não são classificados nesta modalidade.
+
+  + Capital de giro com prazo até 365 dias: crédito de curto prazo destinado a financiar as atividades operacionais das empresas, vinculada a um contrato específico que estabeleça prazos, taxas e garantias, observado o prazo de contratação igual ou inferior a 365 dias.
+
+  + Capital de giro com prazo superior a 365 dias: crédito de médio e longo prazo destinado a financiar as atividades operacionais das empresas, vinculada a um contrato específico que estabeleça prazos, taxas e garantias, observado o prazo de contratação superior a 365 dias.
+
+  + Capital de giro com teto rotativo: crédito destinado a financiar atividades operacionais das empresas, vinculado a contrato que estabeleça linha de crédito rotativo e amortizações com datas pré-determinadas.
+
+  + Cartão de crédito – compras à vista: corresponde às compras à vista realizadas no cartão de crédito, e às compras parceladas pelos lojistas (afiliados), em que não há incidência de juros.
+
+  + Cartão de crédito – parcelado: compreende o parcelamento de compras realizadas com cartão de crédito ou dos valores referentes à fatura do cartão, mediante a cobrança de juros. Inclui as operações de saques em dinheiro com pagamentos parcelados com o uso do cartão na função crédito.
+
+  + Cartão de crédito – rotativo: operações de financiamento do saldo devedor remanescente após vencimento da fatura e operações de saque com pagamento à vista em dinheiro efetuadas na função crédito.
+
+  + Cheque especial: crédito rotativo vinculado à conta corrente, em que determinado limite de recursos é disponibilizado para utilização pelo cliente em situações não programadas e de curto prazo, por meio de saques, cheques, pagamentos ou transferências bancárias. As operações classificadas nessa modalidade devem ter como característica a amortização automática do saldo devedor quando ocorrer depósitos na conta corrente do tomador do crédito. As operações de adiantamento à depositante ou a lojistas, que configuram a utilização em excesso ao limite de crédito estabelecido em contrato, são consideradas nessa modalidade.
+
+  + Compror: operações de crédito a pessoas jurídicas voltadas para o financiamento de suas compras (produtos e serviços), caracterizada pelo fato de que o desembolso inicial ocorre com o pagamento à vista das compras, pela instituição financeira, diretamente ao fornecedor. Estão inclusas nessa modalidade as operações de Floor Plan, destinadas ao financiamento dos estoques das revendedoras de veículos.
+
+  + Conta garantida: crédito rotativo vinculado à conta bancária de pessoas jurídicas, em que determinado limite de recursos é disponibilizado para utilização pelo cliente, por meio da movimentação da conta corrente e/ou solicitação formal à instituição financeira, a qual pode, eventualmente, solicitar a vinculação de garantias de recebíveis, ou outras garantias, ao limite do cliente. As operações de adiantamento a lojistas, que configuram a utilização em excesso ao limite de crédito estabelecido em contrato, são consideradas nessa modalidade
+
+  + Crédito pessoal consignado para aposentados e pensionistas do INSS: operações de crédito a aposentados e pensionistas do Instituto Nacional de Seguro Social (INSS), com retenção de parte do benefício do contratante pelo INSS para o pagamento das parcelas do empréstimo – desconto em folha de pagamento.
+
+  + Crédito pessoal consignado para trabalhadores do setor privado: crédito destinado a empregados do setor privado, com retenção de parte do salário do contratante pelo empregador para o pagamento das parcelas do empréstimo – desconto em folha de pagamento.
+
+  + Crédito pessoal consignado para trabalhadores do setor público: crédito destinado a servidores públicos federais, estaduais e municipais, ativos ou inativos, com retenção, por parte do órgão público ao qual o servidor está vinculado, de parte do salário ou rendimento de aposentadoria para o pagamento das parcelas do empréstimo – desconto em folha de pagamento.
+
+  + Crédito pessoal não consignado: linha de crédito às pessoas físicas sem vinculação com aquisição de bem ou serviço, e sem retenção de parte do salário ou benefício do contratante para o pagamento das parcelas do empréstimo (desconto em folha de pagamento).
+
+  + Crédito pessoal não consignado vinculado a renegociação de dívidas: operações de empréstimos a pessoas físicas associadas a composição de dívidas vencidas envolvendo modalidades distintas. As composições de dívidas entre operações de mesma modalidade estão registradas na modalidade de origem.
+
+  + Desconto de duplicatas: adiantamento de recursos a pessoas jurídicas com base em fluxo de caixa futuro vinculado a duplicatas mercantis e a outros tipos de recebíveis, exceto cheques e faturas de cartão de crédito.
+
+  + Desconto de cheques: adiantamento de recursos a pessoas jurídicas com base em fluxo de caixa futuro vinculado a cheques custodiados.
+
+  + Financiamento à exportação: financiamentos para a venda de bens e serviços ao exterior e que não ACC e ACE. Inclui export notes e operações com Cédulas de Crédito à Exportação (CCE) e Notas de Crédito à Exportação (NCE).
+
+  + Financiamento à importação: financiamentos destinados à compra de bens ou serviços no exterior, vinculados a linhas de crédito externas.
+
+  + Repasse externo: linha de crédito com recursos captados no exterior por instituição financeira, com base na Resolução nº 3.844, de 23 de março de 2010, contratadas por pessoas jurídicas localizadas no país, e que não se enquadrem nas modalidades ACC, financiamento à importação e financiamento à exportação.
+
+  + Vendor: operações de financiamento de vendas baseadas no princípio da cessão de crédito, que permite à empresa tomadora do empréstimo (fornecedor/vendedor) vender seus produtos a prazo e receber o pagamento à vista da instituição financeira. A empresa compradora assume o compromisso de efetuar o pagamento a prazo, destinado a liquidar a operação junto à instituição financeira. Em geral, a instituição financeira ficará com os direitos creditórios da empresa vendedora, à qual caberá o risco da operação.
+
+  + Outros créditos livres: referem-se às operações de crédito com recursos livres que não foram enquadradas nas modalidades anteriores, a exemplo de operações de desconto de notas promissórias, arrendamento mercantil operacional e renegociação de dívidas no segmento de pessoas jurídicas e as operações de penhor no segmento de pessoas físicas.
+
+* Crédito direcionado:
+
+  + Crédito rural com taxas reguladas: operações realizadas em consonância com as diretrizes do direcionamento definidas pelo CMN (estabelece, entre outros parâmetros, o volume de financiamento e a taxa máxima de juros para cada produto), consolidadas no Manual de Crédito Rural (MCR), destinadas a produtores rurais pessoas físicas e jurídicas. Estão incluídas nessa modalidade as operações de crédito rural relacionadas com fundo constitucional.
+
+  + Crédito rural com taxas de mercado: operações realizadas em consonância com as diretrizes do direcionamento definidas pelo CMN, consolidadas no Manual de Crédito Rural (MCR), mas pactuadas com taxas de mercado, destinadas a produtores rurais pessoas físicas e jurídicas. Estão incluídas nessa modalidade as operações de crédito rural relacionadas com fundo constitucional.
+
+  + Financiamento imobiliário com taxas reguladas: compreendem as operações de financiamento habitacional relacionadas com a exigibilidade de direcionamento a que se refere o art. 1º, inciso I, alínea “a” do regulamento anexo à Resolução nº 3.932, de 2010, assim como as relacionadas com recursos de origem orçamentária ou de fundos e/ou programas governamentais.
+
+  + Financiamento imobiliário com taxas de mercado: compreendem as operações de financiamento imobiliário relacionadas com a exigibilidade de direcionamento a que se refere o art. 1º, inciso I, alínea “b” do regulamento anexo à Resolução nº 3.932, de 2010, assim como as operações relacionadas com outras fontes de recursos captados em mercado.
+
+  + Capital de giro com recursos do BNDES: operações de capital de giro e de financiamentos a exportações vinculadas a recursos do BNDES.
+
+  + Financiamento de investimentos com recursos do BNDES: financiamentos de investimentos vinculados a recursos do BNDES.
+
+  + Financiamento agroindustrial com recursos do BNDES: financiamentos agroindustriais vinculados a recursos do BNDES.
+
+  + Microcrédito – consumo: operações de microcrédito destinadas ao consumo contratadas com recursos lastreados em depósitos a vista, nos termos definidos pela Resolução nº 3.422, de 30 de novembro de 2006.
+
+  + Microcrédito – microempreendedor: refere-se às operações de microcrédito destinadas a microempreendedores contratadas com recursos lastreados em depósitos a vista, nos termos definidos pela Resolução nº 3.422, de 2006. As operações de microcrédito para pessoas jurídicas, nos termos dos incisos II e IV, do art.2º dessa Resolução estão incluídas nessa modalidade.
+
+  + Microcrédito – consignado: refere-se às operações de microcrédito com retenção de parte do salário do contratante para o pagamento das parcelas do empréstimo (desconto em folha de pagamento) contratadas com recursos referenciados em depósitos a vista, nos termos definidos pela Resolução nº 3.422, de 2006.
+
+  + Outros créditos direcionados: referem-se às operações de crédito direcionado que não se enquadrem nas modalidades listadas anteriormente
+
+<br>
+
+```{r mba21, fig.cap = 'Fluxo de Crédito'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Total" = 20631, "PJ" = 20632, "PF" = 20633, "Livres" = 20634, "Direcionados" = 20685),
+#first.date = "2011-03-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo20.csv')
+
+concessoes <- ts(read.csv2('arquivo20.csv',
+                       header=T, sep=';')[,-c(1,2)],
+             start=c(2011,03), freq=12)
+
+dates <- seq(as.Date('2011-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(concessoes[,c(2:5)], dates=dates)
+```
+
+<br>
+
+```{r mba22, fig.cap = 'Fluxo de Crédito: Variação Interanual e Anual'}
+## Interanual
+interanual <- (concessoes[,c(2:5)]/stats::lag(concessoes[,c(2:5)],-12)-1)*100
+colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+## Anual
+anual <- concessoes[,c(2:5)]
+anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
+            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
+            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
+              stats::lag(anual,-11))/12)/
+            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
+                stats::lag(anual,-14)+stats::lag(anual,-15)
+              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
+              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
+              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
+
+colnames(anual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(interanual, dates=dates)
+
+dates1 <- seq(as.Date('2013-02-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(anual, dates=dates1)
+
+```
+
+<br>
+
+#### Estoque de Crédito
+
+<br>
+
+Para análise do estoque de crédito, as variáveis utilizadas são 20539 (Saldo da Carteira de Crédito), 20540 (Saldo da carteira de crédito - Pessoas jurídicas), 20541 (Saldo da carteira de crédito - Pessoas físicas), 20542 (Saldo da carteira de crédito com recursos livres), 20593. 
+
+**Saldo** "corresponde ao somatório do saldo devedor dos contratos de crédito em final de mês. Inclui as novas concessões contratadas no mês de referência, aquisições de carteiras de crédito de outras instituições e a apropriação de juros pró-rata dos empréstimos e financiamentos".
+
+* Saldo da Carteira de Crédito:  Saldo em final de período das operações de crédito contratadas no Sistema Financeiro Nacional. Inclui operações contratadas no segmento de crédito livre e no segmento de crédito direcionado.
+
+* Saldo da carteira de crédito com recursos livres: Saldo em final de período das operações de crédito contratadas com taxas de juros livremente pactuadas entre mutuários e instituições financeiras. Não inclui operações referenciadas em taxas regulamentadas, operações vinculadas a recursos do Banco Nacional de Desenvolvimento Econômico e Social (BNDES) ou quaisquer outras lastreadas em recursos compulsórios ou governamentais.
+
+* Saldo da carteira de crédito com recursos direcionados: Saldo em final de período das operações de crédito regulamentadas pelo Conselho Monetário Nacional (CMN) ou vinculados a recursos orçamentários. Refere-se aos financiamentos com destinação específica, vinculados à comprovação da aplicação dos recursos voltados para a produção e investimento de médio e longo prazos, tendo como fonte de recursos parte das captações de depósitos à vista e de caderneta de poupança, e fundos e programas públicos.
+
+<br>
+```{r mba23, fig.cap = 'Estoque de Crédito'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Total" = 20539, "PJ" = 20540, "PF" = 20541, "Livres" = 20542, "Direcionados" = 20593),
+#first.date = "2011-03-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo21.csv')
+
+estoque <- ts(read.csv2('arquivo21.csv',
+                       header=T, sep=';')[,-c(1,2)],
+             start=c(2011,03), freq=12)
+
+dates <- seq(as.Date('2011-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(estoque[,c(2:5)], dates=dates)
+```
+
+<br>
+
+```{r mba24, fig.cap = 'Estoque de Crédito: Variação Interanual e Anual'}
+## Interanual
+interanual <- (estoque[,c(2:5)]/stats::lag(estoque[,c(2:5)],-12)-1)*100
+colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+## Anual
+anual <- estoque[,c(2:5)]
+anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
+            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
+            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
+              stats::lag(anual,-11))/12)/
+            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
+                stats::lag(anual,-14)+stats::lag(anual,-15)
+              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
+              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
+              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
+
+colnames(anual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(interanual, dates=dates)
+
+dates1 <- seq(as.Date('2013-02-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(anual, dates=dates1)
+
+```
+
+<br>
+
+#### Cooperativas de Crédito
+
+<br>
+
+#### Taxas de Juros
+
+<br>
+
+Para a análise das taxas de juros foram usadas as séries disponibilizadas pelo Banco Central: 20714 (Taxa média de juros das operações de crédito %a.a.), 20715 (Taxa média de juros das operações de crédito - Pessoas jurídicas  %a.a.), 20716 (Taxa média de juros das operações de crédito - Pessoas físicas  %a.a.), 20717 (Taxa média de juros das operações de crédito com recursos livres %a.a) e 20756 (Taxa média de juros das operações de crédito com recursos direcionados %a.a.).
+
+**Taxa média de juros** é a "média das taxas de juros das concessões, ponderada pelos respectivos valores desembolsados. As taxas médias dos segmentos agregados (total, pessoa jurídica e pessoa física, livre e direcionado) são apuradas pelas taxas médias das modalidades, ponderadas pelos saldos médios das respectivas modalidades. São computadas nesse cálculo as operações pactuadas com taxas prefixadas, com taxas referenciadas em juros flutuantes, com taxas referenciadas em moeda estrangeira, com taxas referenciadas na Taxa de Juros de Longo Prazo (TJLP), e com taxas referenciadas na Taxa Referencial (TR)".
+
+* Taxa média de juros das operações de crédito: Taxa média de juros das novas operações de crédito contratadas no período de referência no Sistema Financeiro Nacional. Taxa ponderada pelo valor das concessões. Inclui operações contratadas no segmento de crédito livre e no segmento de crédito direcionado.
+
+<br>
+
+```{r mba25, fig.cap = 'Taxa de Juros % a.a.'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Total" = 20714, "PJ" = 20715, "PF" = 20716, "Livres" = 20717, "Direcionados" = 20756),
+#first.date = "2011-03-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo23.csv')
+
+juros <- ts(read.csv2('arquivo23.csv',
+                       header=T, sep=';')[,-c(1,2)],
+             start=c(2011,03), freq=12)
+
+dates <- seq(as.Date('2011-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(juros[,c(2:5)], dates=dates)
+```
+
+<br>
+
+```{r mba26, fig.cap = 'Taxas de Juros: Variação Interanual e Anual'}
+## Interanual
+interanual <- (juros[,c(2:5)]/stats::lag(juros[,c(2:5)],-12)-1)*100
+colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+## Anual
+anual <- juros[,c(2:5)]
+anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
+            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
+            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
+              stats::lag(anual,-11))/12)/
+            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
+                stats::lag(anual,-14)+stats::lag(anual,-15)
+              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
+              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
+              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
+
+colnames(anual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(interanual, dates=dates)
+
+dates1 <- seq(as.Date('2013-02-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(anual, dates=dates1)
+
+```
