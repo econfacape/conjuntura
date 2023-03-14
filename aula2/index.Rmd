@@ -362,7 +362,7 @@ ggplotly(margem1)
 <br>
 
 ``` {r mba12, fig.cap = 'Figura 10: Variação Anual', fig.width  = 9}
-### Variacao Marginal (comparo com o trimestre anterior)
+### Variacao Marginal (comparo com o mesmo mes do anterior anterior)
 anual <- (renda[,2]/stats::lag(renda[,2],-12)-1)*100
 
 dates <- seq(as.Date('2013-02-01'), as.Date('2022-11-01'), by='1 month')
@@ -378,7 +378,7 @@ ggplotly(anual1)
 
 <br>
 
-### Inflação
+# Inflação
 
 <br>
 
@@ -426,7 +426,7 @@ $$
 \dot{P} = \dot{M} - \dot{k} - \dot{Y}
 \tag{11}
 $$
-Como $k$ (o coeficiente de Cambridge) é o inverso da velocidade renda da moeda, por hipótese, constante, tem-se que:
+Como $k$ (o coeficiente de Cambridge) é o inverso da velocidade renda da moeda ($1/V$ com V entendida como o número de giros da moeda *criando renda*), ou seja, a retenção média de moeda em relação à renda nacional nominal, e por hipótese, é constante, tem-se que:
 
 $$
 \dot{P} = \dot{M} - \dot{Y}
@@ -448,17 +448,7 @@ A política monetária via taxa de juros é o instrumento para controlar a infla
 O Banco Mundial disponibiliza um conjunto de dados sobre Nível geral de preços e inflação em diversos países. Assim, basta baixar o CPI (Consumer Price Index) e depois calcular a inflação comparando dois períodos de tempo. Os dados mostrados são de 2000 a 2021, último dado disponível. 
 
 ```{r mba13, fig.cap = 'Figura 11: Evolução Índices de Preços em Países selecionados'}
-#library(quantmod)
 library(wbstats)
-#library(GetQuandlData)
-# https://cran.r-project.org/web/packages/GetQuandlData/vignettes/getquandldata-vignette-introduction.html
-
-#db_id <- 'RATEINF'
-#my_api <- readLines('At73gR4AzKsdTGE5JoaU')
-
-#df <- get_database_info(db_id, my_api)
-
-#head(df)
 #CPI <- wb_data("FP.CPI.TOTL", start_date = 2000, end_date = 2022)
 
 #BRA_CPI <- filter (CPI, iso3c == 'BRA')
@@ -503,7 +493,7 @@ De maneira geral, o Nível Geral de Preços apresenta uma tendência positiva. I
 
 <br>
 
-```{r mba14, fig.cap = 'Figura 12: Evolução Inflação em paises selecionados'}
+```{r mba14, fig.cap = 'Figura 12: Evolução Inflação em países selecionados'}
 
 INF <- (CPI/stats::lag(CPI,-1)-1)*100
 
@@ -535,8 +525,8 @@ A cada grupo estarão, então, vinculados subgrupos, itens e subitens. Atualment
 
 <br>
 
-```{r mba15, fig.width  = 9}
-#datainfl0 <- get_sidra(api='t/1737/n1/all/v/2266/p/all/d/v2266%2013') #Populacao
+```{r mba15, fig.width  = 8}
+#datainfl0 <- get_sidra(api='t/1737/n1/all/v/2266/p/all/d/v2266%2013')
 
 data <- ts(read.csv2('arquivo13a.csv', header=T,
                      sep=';', dec='.', skip=3)[,-1],
@@ -626,7 +616,7 @@ gtsplot(window(ipca[,c(13:14)], start=c(2003,02)), dates=dates)
 
 <br>
 
-#### Contribuicoes Mensais para o indice cheio
+#### Contribuições Mensais para o índice cheio
 
 <br>
 
@@ -679,7 +669,7 @@ difusao
 
 <br>
 
-### Mercado de Crédito
+# Mercado de Crédito
 
 <br>
 
@@ -704,15 +694,11 @@ Um sistema financeiro razoavelmente desenvolvido envolve, em termos gerais, quat
 
 A soma de todas as operações de empréstimos para pessoas físicas e jurídicas realizadas por instituições financeiras corresponde ao que se chama de mercado de crédito. 
 
-Nesta análise os dados trabalhados são obtidos das séries 20361 (Concessões de crédito - Total), 20362 (Concessões de crédito - Pessoas jurídicas - Total), 20633 (Concessões de crédito - Pessoas físicas - Total), 20634 (Concessões de crédito com recursos livres - Total) e 20685 (Concessões de crédito com recursos direcionados). 
+Nesta análise os dados trabalhados são obtidos das séries 20631 (Concessões de crédito - Total), 20632 (Concessões de crédito - Pessoas jurídicas - Total), 20633 (Concessões de crédito - Pessoas físicas - Total), 20634 (Concessões de crédito com recursos livres - Total) e 20685 (Concessões de crédito com recursos direcionados). 
 
 Por concessões entende-se "desembolsos referentes a empréstimos e financiamentos efetivamente creditados ao tomador do crédito. Os valores informados correspondem às concessões ocorridas no mês de referência". 
 
-* 20361 (Concessões de crédito - Total): 
-
-* 20362 (Concessões de crédito - Pessoas jurídicas - Total):
-
-* 20633 (Concessões de crédito - Pessoas físicas - Total): 
+* 20631 (Concessões de crédito - Total): Valor das novas operações de crédito contratadas no período de referência no Sistema Financeiro Nacional. Inclui operações contratadas no segmento de crédito livre e no segmento de crédito direcionado.
 
 * 20634 (Concessões de crédito com recursos livres - Total): Valor das novas operações de crédito contratadas no período de referência com taxas de juros livremente pactuadas entre mutuários e instituições financeiras. Não inclui operações referenciadas em taxas regulamentadas, operações vinculadas a recursos do Banco Nacional de Desenvolvimento Econômico e Social (BNDES) ou quaisquer outras lastreadas em recursos compulsórios ou governamentais.
 
@@ -828,26 +814,8 @@ gtsplot(concessoes[,c(2:5)], dates=dates)
 interanual <- (concessoes[,c(2:5)]/stats::lag(concessoes[,c(2:5)],-12)-1)*100
 colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
 
-## Anual
-anual <- concessoes[,c(2:5)]
-anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
-            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
-            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
-              stats::lag(anual,-11))/12)/
-            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
-                stats::lag(anual,-14)+stats::lag(anual,-15)
-              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
-              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
-              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
-
-colnames(anual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
-
 dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
 gtsplot(interanual, dates=dates)
-
-dates1 <- seq(as.Date('2013-02-01'), as.Date('2023-01-01'), by='1 month')
-gtsplot(anual, dates=dates1)
-
 ```
 
 <br>
@@ -921,6 +889,33 @@ gtsplot(anual, dates=dates1)
 
 <br>
 
+O BCB também disponibiliza dados sobre cooperativas de crédito. Assim, algumas variáveis foram selecionadas para verificar seu comportamento: 25518	(Saldo de crédito das cooperativas para clientes pessoa física - total); 25519	(Saldo de crédito das cooperativas para clientes pessoa juridica - total); 25525	(Saldo de crédito das cooperativas para clientes pessoa física - financiamentos rurais e agroindustriais); 25536	(Saldo de crédito das cooperativas para clientes pessoa física por faixa de valor - menor que R\$ 1 mil); 25537	(Saldo de crédito das cooperativas para clientes pessoa física por faixa de valor - de R\$ 1 mil a R\$ 5 mil); 25538	(Saldo de crédito das cooperativas para clientes pessoa física por faixa de valor - de R\$ 5 mil a R\$ 10 mil); 25539 (Saldo de crédito das cooperativas para clientes pessoa física por faixa de valor - acima de R\$ 10 mil); 25541	(Saldo de crédito das cooperativas para clientes pessoa física por região - Nordeste); 25544	(Saldo de crédito das cooperativas para clientes pessoa física por região - Sul)
+
+<br>
+
+```{r mba25, fig.cap = 'Crédito - Cooperativas'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Saldo Credito Coop PF" = 25518, "Saldo Credito Coop PJ" = 25519, "Saldo PF - Fin rural" = 25525, "Saldo PF menos 1 mil" = 25536, "Saldo PF 1 a 5 mil" = 25537, "Saldo PF 5 a 10 mil" = 25538, "Saldo PF acima 10 mil" = 25539, "Saldo PF Nordeste" = 25541, "Saldo PF Sul" = 25544),
+#first.date = "2012-01-01",
+#last.date = "2021-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo22.csv')
+
+coop1 <- ts(read.csv2('arquivo22.csv',
+                       header=T, sep=';', 
+                      dec = ',')[,-c(1,2)], start=c(2012))
+
+colnames(coop1) <- c("Saldo Credito Coop PF", "Saldo Credito Coop PJ", "Saldo PF - Fin rural", "Saldo PF menos 1 mil", "Saldo PF 1 a 5 mil", "Saldo PF 5 a 10 mil", "Saldo PF acima 10 mil", "Saldo PF Nordeste", "Saldo PF Sul")
+
+dates <- seq(as.Date('2012-01-01'), as.Date('2021-01-01'), by='1 year')
+gtsplot(coop1, dates=dates)
+```
+
+<br>
+
 #### Taxas de Juros
 
 <br>
@@ -933,7 +928,7 @@ Para a análise das taxas de juros foram usadas as séries disponibilizadas pelo
 
 <br>
 
-```{r mba25, fig.cap = 'Taxa de Juros % a.a.'}
+```{r mba27, fig.cap = 'Taxa de Juros % a.a.'}
 #dados_sgs <- GetBCBData::gbcbd_get_series(
 #id = c("Total" = 20714, "PJ" = 20715, "PF" = 20716, "Livres" = 20717, "Direcionados" = 20756),
 #first.date = "2011-03-01",
@@ -954,29 +949,182 @@ gtsplot(juros[,c(2:5)], dates=dates)
 
 <br>
 
-```{r mba26, fig.cap = 'Taxas de Juros: Variação Interanual e Anual'}
+```{r mba28, fig.cap = 'Taxas de Juros: Variação Interanual e Anual'}
 ## Interanual
 interanual <- (juros[,c(2:5)]/stats::lag(juros[,c(2:5)],-12)-1)*100
 colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
 
-## Anual
-anual <- juros[,c(2:5)]
-anual <- (((anual+stats::lag(anual,-1)+stats::lag(anual,-2)+stats::lag(anual,-3)
-            +stats::lag(anual,-4)+stats::lag(anual,-5)+stats::lag(anual,-6)+stats::lag(anual,-7)
-            +stats::lag(anual,-8)+stats::lag(anual,-9)+stats::lag(anual,-10)+
-              stats::lag(anual,-11))/12)/
-            ((stats::lag(anual,-12)+stats::lag(anual,-13)+
-                stats::lag(anual,-14)+stats::lag(anual,-15)
-              +stats::lag(anual,-16)+stats::lag(anual,-17)+stats::lag(anual,-18)
-              +stats::lag(anual,-19)+stats::lag(anual,-20)+stats::lag(anual,-21)
-              +stats::lag(anual,-22)+stats::lag(anual,-23))/12)-1)*100
+dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(interanual, dates=dates)
+```
 
-colnames(anual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+<br>
+
+Além destas variáveis abaixo: 26582	(Taxa de juros de pessoa jurídica por origem dos recursos e segmento concedente - microempresa - Recursos direcionados - Cooperativas); 26585	(Taxa de juros de pessoa jurídica por origem dos recursos e segmento concedente - microempresa - Recursos livres - Cooperativas); 
+
+<br>
+
+```{r mba29, fig.cap = 'Taxa de Juros - Cooperativas'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Tx Juros PJ - Rec. Direcionados" = 26582, "Tx Juros PJ - Rec. Livres" = 26585),
+#first.date = "2012-01-01",
+#last.date = "2022-07-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo23a.csv')
+
+coop2 <- ts(read.csv2('arquivo23a.csv',
+                       header=T, sep=';', 
+                      dec = ',')[,-c(1,2)], start=c(2012, 3), freq=4)
+
+colnames(coop2) <- c("Tx Juros PJ - Rec. Direcionados", "Tx Juros PJ - Rec. Livres")
+
+dates <- seq(as.Date('2012-01-01'), as.Date('2022-09-01'), by='3 months')
+gtsplot(coop2, dates=dates)
+```
+
+<br>
+
+### Spread Bancario
+
+<br>
+
+O spread bancário é a diferença entre as taxas de juros de captação e aquelas cobradas dos demandantes de empréstimos. No sistema de Séries Temporais do Banco Central, é possível obter informaçoes das seguintes séries: 20783 (Spread médio das operações de crédito - Total), 20784 (Spread médio das operações de crédito - Pessoas jurídicas - Total),
+20785 (Spread médio das operações de crédito - Pessoas físicas - Total), 20786 (Spread médio das operações de crédito com recursos livres - Total) e 20825 (Spread médio das operações de crédito com recursos direcionados - Total).
+
+* 20783, 20784 e 20785: Diferença entre a taxa média de juros das novas operações de crédito contratadas no período de referência no Sistema Financeiro Nacional e o custo de captação referencial médio. Inclui operações contratadas no segmento de crédito livre e no segmento de crédito direcionado.
+
+* 20786: Diferença entre a taxa média de juros das novas operações de crédito livre contratadas no período de referência e o custo de captação referencial médio. Não inclui operações referenciadas em taxas regulamentadas, operações vinculadas a recursos do Banco Nacional de Desenvolvimento Econômico e Social (BNDES) ou quaisquer outras lastreadas em recursos compulsórios ou governamentais.
+
+* 20825: Refere-se aos financiamentos com destinação específica, vinculados à comprovação da aplicação dos recursos voltados para a produção e investimento de médio e longo prazos, tendo como fonte de recursos parte das captações de depósitos à vista e de caderneta de poupança, e fundos e programas públicos.
+
+<br>
+
+```{r mba30, fig.cap = 'Spread Bancário'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Total" = 20783, "PJ" = 20784, "PF" = 20785, "Livres" = 20786, "Direcionados" = 20825),
+#first.date = "2011-03-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo24.csv')
+
+spread <- ts(read.csv2('arquivo24.csv',
+                       header=T, sep=';', 
+                      dec = ',')[,-c(1,2)], start=c(2011, 3), freq=12)
+
+colnames(spread) <- c('Total', 'Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+dates <- seq(as.Date('2011-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(spread[,c(2:5)], dates=dates)
+
+## Interanual
+interanual <- (spread[,c(2:5)]/stats::lag(spread[,c(2:5)],-12)-1)*100
+colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
 
 dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
 gtsplot(interanual, dates=dates)
-
-dates1 <- seq(as.Date('2013-02-01'), as.Date('2023-01-01'), by='1 month')
-gtsplot(anual, dates=dates1)
-
 ```
+
+<br>
+
+### Inadimplência
+
+<br>
+
+Uma variável bastante importante no mercado de crédito é a inadimplência. O Banco Central conceitua como **"Percentual da carteira de crédito do Sistema Financeiro Nacional com pelo menos uma parcela com atraso superior a 90 dias"**. Inclui operações contratadas no segmento de crédito livre e no segmento de crédito direcionado. 
+
+Aqui os dados considerados são as séries 21082 (Inadimplência da carteira de crédito - Total), 21083 (Inadimplência da carteira de crédito - Pessoas jurídicas - Total), 21084 (Inadimplência da carteira de crédito - Pessoas físicas - Total), 21085 (Inadimplência da carteira de crédito com recursos livres - Total) e 21132 (Inadimplência da carteira de crédito com recursos direcionados - Total). 
+
+<br>
+
+```{r mba31, fig.cap = 'Inadimplência'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Total" = 21082, "PJ" = 21083, "PF" = 21084, "Livres" = 21085, "Direcionados" = 21132),
+#first.date = "2011-03-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo25.csv')
+
+inadimp <- ts(read.csv2('arquivo25.csv',
+                       header=T, sep=';', 
+                      dec = ',')[,-c(1,2)], start=c(2011, 3), freq=12)
+
+colnames(inadimp) <- c('Total', 'Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+dates <- seq(as.Date('2011-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(inadimp[,c(2:5)], dates=dates)
+
+## Interanual
+interanual <- (inadimp[,c(2:5)]/stats::lag(inadimp[,c(2:5)],-12)-1)*100
+colnames(interanual) <- c('Pessoa Jurídica', 'Pessoa Física', 'Recursos Livre', 'Recursos Direcionados')
+
+dates <- seq(as.Date('2012-03-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(interanual, dates=dates)
+```
+
+<br>
+
+### Endividamento das Famílias
+
+<br>
+
+Comprometimento de renda - Relação entre o valor correspondente aos pagamentos esperados para o serviço da dívida com o Sistema Financeiro Nacional e a renda mensal das famílias, em média móvel trimestral, ajustado sazonalmente.
+
+Endividamento - Relação entre o valor atual das dívidas das famílias com o Sistema Financeiro Nacional e a renda das famílias acumulada nos últimos doze meses.
+
+No site do Banco Central existe um grande conjunto de informações metodológicas. 
+
+Os dados aqui utilizados são as séries 19879, 19880, 19881, 20399, 19882 e 20400. 
+
+* "Amortização" = 19879: Comprometimento de renda das famílias com amortização da dívida com o Sistema Financeiro Nacional - Com ajuste sazonal (MSAD). 
+
+* "Juros" = 19880: Comprometimento de renda das famílias com juros da dívida com o Sistema Financeiro Nacional - Com ajuste sazonal (MSAD).
+
+* "Serviço" = 19881: Comprometimento de renda das famílias com o serviço da dívida com o Sistema Financeiro Nacional - Com ajuste sazonal (MSAD).
+
+* "Servicos exceto-habitacao" = 20399: Comprometimento de renda das famílias com o serviço da dívida com o Sistema Financeiro Nacional exceto crédito habitacional - Com ajuste sazonal (MSAD).
+
+* "Endividamento" = 19882: Endividamento das famílias com o Sistema Financeiro Nacional em relação à renda acumulada dos últimos doze meses (MSAD).
+
+* "Endividamento exceto-habitacao" = 20400: Endividamento das famílias com o Sistema Financeiro Nacional exceto crédito habitacional em relação à renda acumulada dos últimos doze meses (MSAD).
+
+<br>
+
+```{r mba32, fig.cap = 'Endividamento das Famílias'}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Amortização" = 19879, "Juros" = 19880, "Serviço" = 19881, "Servicos ex-habit" = 20399, "Endividamento" = 19882, "Endividamento ex-habit" = 20400),
+#first.date = "2005-03-01",
+#last.date = "2021-08-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo26.csv')
+
+endivida <- ts(read.csv2('arquivo26.csv',
+                       header=T, sep=';', 
+                      dec = ',')[,-c(1,2)], start=c(2005, 3), freq=12)
+
+colnames(endivida) <- c("Amortização", "Juros", "Serviço", "Servicos ex-habit", "Endividamento", "Endividamento ex-habit")
+
+dates <- seq(as.Date('2005-03-01'), as.Date('2021-08-01'), by='1 month')
+gtsplot(endivida, dates=dates)
+
+## Interanual
+interanual <- (endivida/stats::lag(endivida,-12)-1)*100
+colnames(interanual) <- c("Amortização", "Juros", "Serviço", "Servicos ex-habit", "Endividamento", "Endividamento ex-habit")
+
+dates <- seq(as.Date('2006-03-01'), as.Date('2021-08-01'), by='1 month')
+gtsplot(interanual, dates=dates)
+```
+
+<br>
