@@ -315,7 +315,7 @@ p + scale_colour_hue("Legenda") + scale_size_manual(values = 2)+
 Uma questão importante em relação ao mercado de trabalho é o rendimento recebido pela força de trabalho. Para fazer esta análise os dados da evolução do Rendimento médio de todos os trabalhos, efetivamente recebido no mês de referência, pelas pessoas de 14 anos ou mais de idade, ocupadas na semana de referência, com rendimento de trabalho (Reais), disponibilizado pelo IBGE pode ser utilizado. 
 
 
-```{r mba10, fig.cap = 'Figura 8: Rendimentos Reais', fig.width  = 9}
+```{r mba10, fig.cap = 'Figura 8: Rendimentos Reais'}
 renda <- read.csv(file='arquivo12c.csv',
                 header=T,sep=";", skip=3)
 colnames(renda)[2] <- "renda"
@@ -331,7 +331,7 @@ renda1 <- ggplot(renda, aes(x=time))+
   xlab('')+ylab('Reais')+
   theme(legend.position = 'top')
 
-ggplotly(renda1)
+renda1
 ```
 
 <br> 
@@ -340,7 +340,7 @@ ggplotly(renda1)
 
 <br>
 
-``` {r mba11, fig.cap = 'Figura 9: Variação Marginal', fig.width  = 9}
+``` {r mba11, fig.cap = 'Figura 9: Variação Marginal'}
 ### Variacao Marginal (comparo com o trimestre anterior)
 margem <- (renda[,2]/stats::lag(renda[,2],-1)-1)*100
 
@@ -352,7 +352,7 @@ margem1 <- ggplot(margem, aes(x=time))+
   xlab('')+ylab('Variação %')+
   theme(legend.position = 'top')
 
-ggplotly(margem1)
+margem1
 ```
 
 <br>
@@ -361,7 +361,7 @@ ggplotly(margem1)
 
 <br>
 
-``` {r mba12, fig.cap = 'Figura 10: Variação Anual', fig.width  = 9}
+``` {r mba12, fig.cap = 'Figura 10: Variação Anual'}
 ### Variacao Marginal (comparo com o mesmo mes do anterior anterior)
 anual <- (renda[,2]/stats::lag(renda[,2],-12)-1)*100
 
@@ -373,7 +373,7 @@ anual1 <- ggplot(anual, aes(x=time))+
   xlab('')+ylab('Variação %')+
   theme(legend.position = 'top')
 
-ggplotly(anual1)
+anual1
 ```
 
 <br>
@@ -545,7 +545,7 @@ ipca1 <- ggplot(ipca, aes(x=time))+
   xlab('Meses do Ano')+ylab('IPCA - Número Índice')+
   theme(legend.position = 'top')
 
-ggplotly(ipca1)
+ipca1
 
 ipca_mes <- data.frame(time=dates, ipca_mes=data[,2])
 ipca1_mes <- ggplot(ipca_mes, aes(x=time))+
@@ -553,7 +553,7 @@ ipca1_mes <- ggplot(ipca_mes, aes(x=time))+
   xlab('Meses do Ano')+ylab('IPCA - Variação Mensal (%)')+
   theme(legend.position = 'top')
 
-ggplotly(ipca1_mes)
+ipca1_mes
 
 ipca_ano <- data.frame(time=dates, ipca_ano=data[,3])
 ipca1_ano <- ggplot(ipca_ano, aes(x=time))+
@@ -561,7 +561,7 @@ ipca1_ano <- ggplot(ipca_ano, aes(x=time))+
   xlab('Meses do Ano')+ylab('IPCA - Variação Acumulada em 12 meses (%)')+
   theme(legend.position = 'top')
 
-ggplotly(ipca1_ano)
+ipca1_ano
 ```
 
 <br>
@@ -988,7 +988,7 @@ gtsplot(coop2, dates=dates)
 
 <br>
 
-### Spread Bancario
+### Spread Bancário
 
 <br>
 
