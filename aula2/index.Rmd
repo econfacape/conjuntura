@@ -439,6 +439,8 @@ Se a inflação é determinada positivamente pela taxa de crescimento dos meios 
 
 A política monetária via taxa de juros é o instrumento para controlar a inflação, consequentemente. política monetária será expansionista se a taxa de juros de curto prazo estiver abaixo daquela considerada de equilíbrio entre oferta e demanda por "fundos emprestáveis", como dito por Wicksell (1898). Assim, o Bacen deve calibrar a taxa básica de juros em torno daquela considerada de equilíbrio, natural ou neutra, de modo a manter a estabilidade de preços na economia. 
 
+![Figura 11: Juro Real x Juro Neutro](img_r/img1.png){width="100%"} 
+
 <br>
 
 #### Nível Geral de Preços ao redor do mundo
@@ -447,7 +449,7 @@ A política monetária via taxa de juros é o instrumento para controlar a infla
 
 O Banco Mundial disponibiliza um conjunto de dados sobre Nível geral de preços e inflação em diversos países. Assim, basta baixar o CPI (Consumer Price Index) e depois calcular a inflação comparando dois períodos de tempo. Os dados mostrados são de 2000 a 2021, último dado disponível. 
 
-```{r mba13, fig.cap = 'Figura 11: Evolução Índices de Preços em Países selecionados'}
+```{r mba13, fig.cap = 'Figura 12: Evolução Índices de Preços em Países selecionados'}
 library(wbstats)
 #CPI <- wb_data("FP.CPI.TOTL", start_date = 2000, end_date = 2022)
 
@@ -493,7 +495,7 @@ De maneira geral, o Nível Geral de Preços apresenta uma tendência positiva. I
 
 <br>
 
-```{r mba14, fig.cap = 'Figura 12: Evolução Inflação em países selecionados'}
+```{r mba14, fig.cap = 'Figura 13: Evolução Inflação em países selecionados'}
 
 INF <- (CPI/stats::lag(CPI,-1)-1)*100
 
