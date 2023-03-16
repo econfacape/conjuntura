@@ -172,6 +172,16 @@ Como dito anteriormente, apesar de ser monopolista, o Banco Central tem que leva
 
 Uma vez definida a taxa básica de juros, ela se propaga pelo organismo econômico por meio de diferentes canais, como pode ser visto abaixo, até afetar a taxa de crescimento do nível geral de preços.
 
+Os principais canais de transmissão são:
+
+* Consumo e investimento: as decisões da taxa de juros básica mudam as taxas de juros reais, o que pode levar à mudanças nas decisões de investimento e consumo por empresas e famílias. Se a autoridade monetária fizer um corte nos juros, por exemplo, a demanda agregada da economia tende a se aquecer, o que contribui para a elevação de preços.
+
+* Canal do crédito: ao cortar juros o Banco Central estimula que as demais taxas praticadas no mercado de crédito bancário também caiam, o que pode impulsionar a tomada de crédito por empresas e famílias, incentivando o consumo e investimento.
+
+* Expectativas: se a autoridade monetária possui credibilidade, mudanças na taxa básica de juros também alteram o que se espera para o presente e o futuro da dinâmica da economia. Ao cortar juros o Banco Central sinaliza que a demanda agregada pode se aquecer, o que leva a elevação de preços. Dessa forma, empresas e famílias tendem a esperar que a economia encare pressões inflacionárias no futuro. Por consequência, os preços presentes da economia tenderão a sofrer reajustes maiores pois os agentes se antecipam e reagem, por hipótese, ao conjunto de informações disponíveis no presente e às expectativas formadas quanto ao futuro.
+
+Há outros canais relevantes, como o do câmbio e da riqueza,
+
 <br>
 
 ![Figura 1: Mecanismo de Transmissão da Politica Monetária](img_r/img4.png){width="75%"} 
@@ -215,61 +225,169 @@ Em outras palavras, o juro real \emph{ex-ante} será dado, de forma aproximada, 
 
 <br>
 
-``` {r mba1, fig.cap = 'Figura 4: Expectativas de Inflação e Taxa de juros Selic'}
+A relação entre as taxas de juros e a inflação é geralmente inversa: quando a inflação está alta, o Banco Central tende a aumentar as taxas de juros para desacelerar a economia e conter a inflação. Por outro lado, quando a inflação está baixa, o Banco Central pode reduzir as taxas de juros para estimular o consumo e o investimento, e assim estimular o crescimento econômico.
 
-# Pacotes
-library(sidrar)
-library(GetTDData)
-library(readr)
-library(xts)
-library(forecast)
-library(scales)
-library(ggplot2)
-library(mFilter)
-library(grid)
-library(png)
-library(rbcb)
-library(Quandl)
-library(tidyverse)
-library(plotly)
-library(BMR)
-library(plotly)
-library(GetBCBData)
-library(easyGgplot2)
+A lógica por trás dessa relação é que quando as taxas de juros estão altas, os empréstimos e o crédito se tornam mais caros, o que desestimula o consumo e o investimento. Com menos dinheiro circulando na economia, a inflação tende a desacelerar. Já quando as taxas de juros estão baixas, o crédito fica mais acessível e barato, o que estimula o consumo e o investimento, fazendo a economia crescer.
 
-#dados_sgs <- GetBCBData::gbcbd_get_series(
-#id = c("Selic" = 4189),
-#first.date = "2012-06-01",
-#last.date = "2023-02-01",
-#format.data = "wide"
-#)
-#tail(dados_sgs)
+<br>
 
-#write.csv2(dados_sgs, file='arquivo26.csv')
+``` {r mba1}
+library(magrittr)
 
-selic <- ts(read.csv2('arquivo26.csv',
-                       header=T, sep=';', dec=',')[,-c(1,2)],
-             start=c(2012,06), freq=12)
- 
-## Expectativa de Inflação 12 meses à frente
-#expinf <- get_twelve_months_inflation_expectations('IPCA',
-#start_date = '2012-06-01')
+# Coleta e tratamento de dados
+selic_ipca <- GetBCBData::gbcbd_get_series(
+  id          = c("IPCA em 12 meses" = "13522", "Taxa SELIC" = "4189"),
+  first.date  = "1999-08-01", 
+  use.memoise = FALSE
+) %>% 
+  dplyr::as_tibble() %>% 
+  dplyr::select(
+    "date"     = ref.date, 
+    "variable" = series.name, 
+    value
+  )
 
-load("expinf12.RData")
-
-expectativa <- apply.monthly(expinf12, mean)
-
-g1 <- autoplot(selic)+
-geom_line(colour="darkblue", size=1.5)+
-xlab('')+ylab('% a.a.')+
-ggtitle('Taxa de juros - Selic acumulada no mês anualizada')
-
-g2 <- autoplot(expectativa)+
-geom_line(colour="darkgreen", size=1.5)+
-xlab('')+ylab('% a.a.')+
-ggtitle('Expectativas de Inflação - 12 meses')
-
-ggplot2.multiplot(g2, g1, cols=2)
+# Gráfico com o ggplot2
+selic_ipca %>% 
+  ggplot2::ggplot(ggplot2::aes(x = date, y = value, colour = variable)) +
+  ggplot2::geom_line(size = 1) +
+  ggplot2::labs(title = "Inflação vs. Taxa de Juros - Selic",
+                x = "",
+                y = "% a.a.",
+                caption = "Dados: SGS/BCB | Elaborado por: analisemacro.com.br") +
+  ggplot2::scale_colour_manual(values = c(
+             "#282f6b", # blue
+             "#b22200" # red
+  )) +
+  ggplot2::facet_wrap(~variable, nrow = 2, scales = "free_y") +
+  ggplot2::theme_minimal()+
+  ggplot2::theme(legend.position = "none")
 ```
+
+<br>
+
+O gráfico das Selic e IPCA no período de agosto de 1998 até janeiro de 2023, mostra que as duas andam de forma conjunta ao longo do tempo, isto é, no período que a Selic eleva-se o IPCA também, e vice-versa.
+
+O entendimento é de que, a Selic é um importante mecanismo de política monetária do Banco Central para controlar a inflação do país, de acordo com a meta de inflação no horizonte analisado, ou seja, o BC de forma geral, avalia o IPCA  de forma prospectiva para tomar as decisões de aumento ou diminuição da Meta Selic, pois o efeito prático da transmissão da Taxa de juros tem uma certa demora para afetar o IPCA,  portanto, é necessário identificar o efeito das defasagens da Selic em relação ao IPCA.
+
+<br>
+
+### Construindo um Modelo de Previsão para a Taxa Selic
+
+<br>
+
+Os dados aqui utilizados são obtidos no site do Banco Central e se referem a Taxa Selic	(Meta Selic definida pelo Copom (% a.a.)	cuja fonte é a SGS/BCB); o Hiato da inflação	Desvio da expectativa do IPCA um ano à frente em relação a meta no mesmo horizonte	Focus/BCB e CMN
+Hiato do produto	Estimativa do Banco Central em seu modelo bayesiano	RI/BCB
+
+``` {r mba2, include=FALSE}
+# Importar dados ----------------------------------------------------------
+# Taxa de juros - Meta Selic definida pelo Copom - % a.a. - Freq. diária - SGS/BCB
+# Meta para a inflação - CMN - % - Freq. anual - SGS/BCB
+#dados_sgs <- rbcb::get_series(
+#  code       = c("selic" = 432, "meta_ipca" = 13521),
+#  start_date = "2002-01-01",
+#  end_date   = Sys.Date() + months(12*4)
+#  )
+
+# Expectativas p/ o IPCA nos próximos 12 meses - % - Freq. irregular - Focus/BCB
+#dados_ipca_exp <- rbcb::get_market_expectations(
+#  type       = "inflation-12-months",
+#  indic      = "IPCA",
+#  start_date = "2002-01-01"
+#  )
+
+# Hiato do produto - % - Freq. trimestral - RI/BCB
+#dados_hiato <- rio::import(
+#  file      = "https://www.bcb.gov.br/content/ri/relatorioinflacao/202212/ri202212anp.xlsx",
+#  format    = "xlsx",
+#  sheet     = "Graf 2.2.4",
+#  col_names = c("data", "hiato"),
+#  col_types = c("date", "numeric", "skip", "skip"),
+#  skip      = 10
+#  )
+
+# Tratamento de dados -----------------------------------------------------
+
+# Selic final de período
+#dados_selic <- dados_sgs$selic |>
+#  dplyr::group_by(data = lubridate::floor_date(x = date, unit = "quarter")) |>
+#  dplyr::filter(date == max(date)) |>
+#  dplyr::ungroup() |>
+#  dplyr::select("data", "selic")
+
+# Calcular hiato de inflação
+#dados_hiato_pi <- dplyr::full_join(
+#  x = {
+#    dados_ipca_exp |>
+#      dplyr::filter(baseCalculo == 0, Suavizada == "S") |>
+#      dplyr::group_by(data = lubridate::floor_date(x = Data, unit = "quarter")) |>
+#      dplyr::filter(Data == max(Data)) |>
+#      dplyr::ungroup() |>
+#      dplyr::select("data", "ipca_exp" = "Mediana")
+#    },
+#  y = {
+#    dados_sgs$meta_ipca |>
+#      tidyr::uncount(4) |>
+#      dplyr::mutate(
+#        data = seq.Date(
+#          from = min(date),
+#          by = "quarter",
+#          length.out = nrow(dados_sgs$meta_ipca)*4
+#        )
+#      ) |>
+#      dplyr::select("data", "meta_ipca")
+#    },
+#  by = "data"
+#  ) |>
+#  dplyr::mutate(hiato_ipca = ipca_exp - dplyr::lead(meta_ipca, 4))
+
+# Tratar tipos de colunas do hiato do produto
+#dados_hiato_y <- dados_hiato |>
+#  dplyr::mutate(data = lubridate::as_date(data) - months(2)) |>
+#  dplyr::rename("hiato_produto" = "hiato")
+
+# Cruzar dados
+#dados <- purrr::reduce(
+#  .x = list(dados_selic, dados_hiato_pi, dados_hiato_y),
+#  .f = dplyr::full_join,
+#  by = "data"
+#  ) |>
+#  dplyr::filter(data >= as.Date("2003-10-01")) |>
+#  dplyr::mutate(data = tsibble::yearquarter(data)) |>
+#  dplyr::rename("data" = "data") |>
+#  tsibble::as_tsibble(index = "data")
+
+#save.image("dados_previsao_selic.RData")
+
+load("dados_previsao_selic.RData")
+```
+
+```{r mba3}
+library(fabletools)
+# Dados completos
+dados_modelos <- dados |>
+  tidyr::drop_na()
+
+# Semente de reprodução
+set.seed(1984)
+
+# Estima auto ARIMA
+fit_arima <- dados_modelos |>
+  fabletools::model(
+    auto_arima = fable::ARIMA(selic)
+  )
+
+# Previsão
+forecast_arima <- fit_arima |>
+  fabletools::forecast(h = 8)
+
+# Gerar visualização
+fabletools::autoplot(dados) +
+   fabletools::autolayer(forecast_arima, selic)
+
+forecast_arima
+```
+
+
 
 <br>
