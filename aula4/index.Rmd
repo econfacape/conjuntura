@@ -1,0 +1,271 @@
+---
+title: "PANORAMA ECONÔMICO E ANÁLISE SETORIAL DE MERCADOS"
+author: "João Ricardo F. de Lima"
+date: "`r format(Sys.time(), '%d de %B de %Y.')`"
+output: 
+    html_document:
+        theme: flatly
+        number_sections: no
+        highlight: textmate
+#        includes: 
+#          in_header: "header.html"
+        toc: yes
+        toc_float:
+          collapsed: yes
+          smooth_scroll: yes 
+        df_print: paged  #ajusta o formato da tabela
+---
+
+```{r mba0, include=FALSE}
+setwd('/Users/jricardofl/Dropbox/tempecon/facape/mba2023')
+#setwd("C:/Users/User client/Dropbox/tempecon/Facape/mba2023")
+
+knitr::opts_chunk$set(
+  echo       = TRUE,
+  warning    = FALSE,
+  message    = FALSE,
+  comment    = NA,
+  fig.width  = 10, 
+  fig.height = 6,
+  fig.align  = "center",
+  comment    = "#",
+  size       = "normalsize"
+  )
+```
+
+<br>
+
+# O Setor Externo
+
+<br>
+
+Toda e qualquer economia de mercado deve ter algum contato, menor ou maior, a depender de diversos fatores, com o resto do mundo. Convencionou-se, nesse contexto, a designar como setor externo a área da análise de conjuntura onde são compiladas e analisadas as transações comerciais e financeiras que são feitas entre residentes e não residentes de um determinado país.
+
+<br>
+
+### A Taxa de Câmbio
+
+<br>
+
+Será analisada a variável 3697 (Taxa de câmbio - Livre - Dólar americano (compra) - Média de período - mensal). A forma abaixo, comum no Brasil, é chamada de forma direta, que expressa o quanto um dólar é cotado em real.
+
+<br>
+
+```{r mba1}
+
+library(GetBCBData)
+library(ggplot2)
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Cambio" = 3697),
+#first.date = "2003-01-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+
+#write.csv2(dados_sgs, file='arquivo31.csv')
+
+cambio <- ts(read.csv2('arquivo31.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2003,01), freq=12)
+
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
+df <- data.frame(time=dates, cambio)
+
+ggplot(df, aes(x=time))+
+  geom_line(aes(y=cambio), linewidth=.8, colour='blue')+
+  xlab('Tempo')+ylab('R$/US$')+
+  theme_gray() #Definindo tema
+
+```
+<br>
+
+Ademais, as taxas de câmbio também se apresentam em sua forma real, onde se leva em consideração a inflação dos países, isto é,
+
+$$
+\theta = \frac{E\pi^*}{\pi}
+\tag{1}
+$$
+onde $\theta$ é a taxa de câmbio, E é a taxa de câmbio nominal, $\pi^*$ é a inflação estrangeira e inflação doméstica. 
+
+<br>
+
+```{r mba2, fig.cap="Índice da taxa de câmbio real efetiva (IPCA)"}
+dados_sgs <- GetBCBData::gbcbd_get_series(
+id = c("Cambio" = 11752),
+first.date = "2003-01-01",
+last.date = "2023-01-01",
+format.data = "wide"
+)
+
+write.csv2(dados_sgs, file='arquivo31a.csv')
+
+cambio_real <- ts(read.csv2('arquivo31a.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2003,01), freq=12)
+
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+df <- data.frame(time=dates, cambio_real)
+
+ggplot(df, aes(x=time))+
+  geom_line(aes(y=cambio_real), linewidth=.8, colour='blue')+
+  xlab('Tempo')+ylab('R$/US$')+
+  theme_gray() #Definindo tema
+
+```
+
+<br>
+
+A taxa de câmbio, como vimos na seção 02, é uma variável endógena que depende de uma série de fatores para ser determinada. Essa determinação, por suposto, ocorre no mercado de câmbio, onde de forma geral bancos centrais podem atuar de modo a moderar a variabilidade da taxa. Isto é, bancos centrais tentam evitar variações muito bruscas, dado o efeito que isso possui sobre outras variáveis macroeconômicas, como a inflação. 
+
+<br>
+
+### O balanço de pagamentos
+
+<br>
+
+É no balanço de pagamentos (BP) que se registram as operações comerciais e financeiras feitas entre residentes e não residentes. A grosso modo, o BP pode ser dividido em duas grandes contas: as transações correntes e a conta financeira e de capital. Naquelas ficam registradas as exportações e importações de bens e serviços, além de remuneração aos fatores de produção e transferências unilaterais, enquanto nesta ficam as transferências financeiras. 
+
+O que o analista de conjuntura terá interesse não é no saldo do BP, mas na trajetória das suas parcelas, as transações correntes (TC) e a conta capital e financeira (K).
+
+Uma parte importante é que $TC+ K= \Delta R$, em que $\Delta R$ é a variação das reservas. o aumento de reservas significa que a oferta de moeda estrangeira está maior do que a demanda, enquanto uma redução implica o contrário. 
+
+Os dados abaixo são sobre o saldo de transações correntes, anual e mensal em (US$ Milhões). 
+
+<br>
+
+```{r mba3, echo=FALSE}
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("STCA" = 23461),
+#first.date = "2003-01-01",
+#last.date = "2022-01-01",
+#format.data = "wide"
+#)
+
+#write.csv2(dados_sgs, file='arquivo32a.csv')
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("STCM" = 22701),
+#first.date = "2003-01-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+
+#write.csv2(dados_sgs, file='arquivo32b.csv')
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("CF" = 23623),
+#first.date = "2000-01-01",
+#last.date = "2022-01-01",
+#format.data = "wide"
+#)
+
+#write.csv2(dados_sgs, file='arquivo32c.csv')
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("RI" = 23803),
+#first.date = "2003-01-01",
+#last.date = "2022-01-01",
+#format.data = "wide"
+#)
+
+#write.csv2(dados_sgs, file='arquivo32d.csv')
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Estoque_RI" = 3545),
+#first.date = "2003-01-01",
+#last.date = "2022-01-01",
+#format.data = "wide"
+#)
+
+#write.csv2(dados_sgs, file='arquivo32e.csv')
+
+transacoesa <- ts(read.csv2('arquivo32a.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2003))
+
+transacoesa <- -transacoesa/1000
+
+transacoesm <- ts(read.csv2('arquivo32b.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2003,1), freq=12)
+
+transacoesm <- -transacoesm/1000
+
+financeira <- ts(read.csv2('arquivo32c.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2000))
+
+reservas <- ts(read.csv2('arquivo32d.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2003))
+
+estoque <- ts(read.csv2('arquivo32e.csv',
+                       header=T, sep=';', dec=',')[,-c(1,2)],
+             start=c(2003))
+```
+
+```{r mba4, echo=FALSE, fig.cap="Déficit em Transações Correntes"}
+library(ggplot2)
+
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-01-01'), by='1 year')
+
+df <- data.frame(time=dates, transacoesa)
+
+ggplot(df, aes(x=time))+
+  geom_col(aes(y=transacoesa), size=2, colour='blue', fill='blue')+
+  xlab('Tempo')+ylab('US$ Bilhões')+
+  theme_minimal() #Definindo tema
+
+```
+
+
+```{r mba5, echo=FALSE, fig.cap="Déficit em Transações Correntes mensal"}
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
+
+df <- data.frame(time=dates, transacoesm)
+
+ggplot(df, aes(x=time))+
+  geom_line(aes(y=transacoesm), linewidth=1, colour='red')+
+  xlab('Tempo')+ylab('US$ Bilhões')+
+  theme_minimal() #Definindo tema
+
+```
+
+```{r mba6, echo=FALSE, fig.cap="Conta Financeira"}
+dates <- seq(as.Date('2000-01-01'), as.Date('2022-01-01'), by='1 year')
+
+df <- data.frame(time=dates, financeira)
+
+ggplot(df, aes(x=time))+
+  geom_line(aes(y=-financeira/1000), linewidth=1, colour='gold')+
+  xlab('Tempo')+ylab('US$ Bilhões')+
+  theme_minimal() #Definindo tema
+
+```
+
+```{r mba7, echo=FALSE, fig.cap="Variação das Reservas Internacionais"}
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-01-01'), by='1 year')
+
+df <- data.frame(time=dates, reservas)
+
+ggplot(df, aes(x=time))+
+  geom_line(aes(y=reservas/1000), linewidth=1, colour='darkgreen')+
+  xlab('Tempo')+ylab('US$ Bilhões')+
+  theme_minimal() #Definindo tema
+
+```
+
+```{r mba8, echo=FALSE, fig.cap="Estoque das Reservas Internacionais"}
+dates <- seq(as.Date('2003-01-01'), as.Date('2022-01-01'), by='1 year')
+
+df <- data.frame(time=dates, estoque)
+
+ggplot(df, aes(x=time))+
+  geom_line(aes(y=estoque/1000), linewidth=1, colour='black')+
+  xlab('Tempo')+ylab('US$ Bilhões')+
+  theme_minimal() #Definindo tema
+
+```
+
+<br>
