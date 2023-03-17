@@ -276,8 +276,7 @@ O entendimento é de que, a Selic é um importante mecanismo de política monet�
 
 <br>
 
-Os dados aqui utilizados são obtidos no site do Banco Central e se referem a Taxa Selic	(Meta Selic definida pelo Copom (% a.a.)	cuja fonte é a SGS/BCB); o Hiato da inflação	Desvio da expectativa do IPCA um ano à frente em relação a meta no mesmo horizonte	Focus/BCB e CMN
-Hiato do produto	Estimativa do Banco Central em seu modelo bayesiano	RI/BCB
+Os dados aqui utilizados são obtidos no site do Banco Central e se referem a Taxa Selic	(Meta Selic definida pelo Copom (% a.a.)	cuja fonte é a SGS/BCB). 
 
 ``` {r mba2, include=FALSE}
 # Importar dados ----------------------------------------------------------
