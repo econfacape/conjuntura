@@ -388,6 +388,612 @@ fabletools::autoplot(dados) +
 forecast_arima
 ```
 
+<br>
 
+# A Política Fiscal
+
+<br>
+
+Para analisar a capacidade dos governos de interferir no ambiente econômico, é preciso analisar o conjunto de *instrumentos fiscais*. Tanto pelo lado da despesa (consumo, investimentos, subsídios e transferências) quanto pelo lado da receita (impostos diretos e indiretos), os governo dispõem de mecanismos para interferir no organismo econômico. 
+
+Em termos agregados, pode-se inferir que a diferença líquida entre o que os governos gastam e o que eles arrecadam tem impacto sobre a demanda por bens e serviços na economia. Contudo, os custos e benefícios diferem bastante, a depender do tipo de instrumento utilizado. Um aumento de consumo, por exemplo, terá efeito limitado ao curto prazo, exercendo pressão de demanda sobre o organismo econômico. Já um aumento do investimento público aumenta a demanda no curto prazo, mas ao expandir a capacidade produtiva, também terá efeitos de médio e longo prazo.
+
+Por representar um conjunto mais amplo de instrumentos e opções do que a política monetária, compreender a política fiscal é mais complexo e um tanto quanto mais tortuoso, à medida que os dados nem sempre estão disponíveis com a mesma transparência e rapidez.
+
+A justificativa teórica para utilização de instrumentos fiscais está no que a literatura chama de falhas de mercado. Economias de mercado, governadas pelo mecanismo de preço, estão sujeitas a inúmeras imperfeições, entre as quais: 
+
+
+*  Bens Públicos
+
+*  Externalidades
+
+*  Mercados Imperfeitos
+
+*  Incerteza na oferta de bens e serviços
+
+*  Assimetrias de Informação
+
+Cada uma dessas falhas justifica a intervenção do Estado na economia, seja através de regulação ou mesmo provisão direta de bens.
+
+A política fiscal possui três funções clássicas, a saber: 
+
+
+* a função alocativa; 
+
+* a função estabilizadora;
+
+* a função distributiva. 
+
+Na primeira, ela atua na provisão de bens públicos, aqueles onde não vale o princípio da exclusão e o custo marginal é igual a zero. 
+
+Na segunda, cabe à política fiscal atuar anticiclicamente, minimizando assim recessões econômicas.
+
+Já na terceira, cabe à política fiscal servir como fonte de redistribuição de renda.
+
+A operacionalização dessas funções passa pelo orçamento público, dividido em despesas e receitas. No lado das receitas estão basicamente os impostos cobrados dos cidadãos, enquanto as despesas podem ser divididas em correntes e de investimento. O manuseio dos mais diversos tipos de instrumentos contidos nessas grandes categorias constitue assim a forma como os diferentes governos provêm bens públicos, atuam sobre o ciclo econômico e/ou transferem renda. 
+
+Governos possuem três formas de se financiar: 
+
+* via impostos; 
+
+* emitindo títulos públicos; 
+
+* emitindo moeda. 
+
+Cada uma dessas formas gera custos para a sociedade, tendo de ser cuidadosamente avaliadas *ex-ante*. O aumento de impostos, por exemplo, prejudica a competitividade do país em
+relação ao resto do mundo. A emissão de títulos públicos retira recursos da iniciativa privada que poderiam ser aplicados em projetos de investimento. A emissão monetária para fins de financiamento público, por fim, gera inflação. Desse modo, a sustentabilidade da política fiscal passa, necessariamente, por calibrar seus gastos à capacidade de financiamento, gerando o menor ônus possível para a sociedade.
+
+Em termos mais amplos, a solvência de um determinado governo deve ser avaliado com base em alguns critérios: (i) existência de déficits primários sistemáticos; (ii) moeda no qual a dívida é emitida; (iii) taxas de juros flutuantes; (iv) maturidade da dívida; (v) base de investidores (domésticos ou externos). 
+
+A literatura mais recente sobre o assunto tem recomendado que a política fiscal deve ser equilibrada em tempos de paz e ativa em momentos de hiato do produto excessivamente negativo. 
+
+```{r mba4, include = FALSE}
+# https://www.gov.br/tesouronacional/pt-br/estatisticas-fiscais-e-planejamento/resultado-do-tesouro-nacional-rtn
+
+library(readxl)
+library(GetTDData)
+library(DT)
+
+data <- read_xlsx(
+  path = "serie_historica_jan23.xlsx",
+  sheet = "1.1",
+  col_names = TRUE,
+  col_types = 'numeric',
+  skip = 4
+  ) 
+
+data <- t(data[-c(69:76),-1])
+data <- ts((data[1:313,]), start=c(1997,01), freq=12)
+
+names <- t(read.table('arquivo28.csv', header=F))
+colnames(data) <- names
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("PIB" = 4382),
+#first.date = "1997-01-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo28a.csv')
+
+pib <- ts(read.csv2('arquivo28a.csv', header=T,
+                     sep=';', dec=',')[,-c(1:2)],
+           start=c(1997,01), freq=12)
+
+ipca <- ts(read.csv2('arquivo13a.csv', header=T,
+                     sep=';', dec='.', skip=3)[,-1],
+           start=c(1980,12), freq=12)
+
+colnames(ipca) <- c('IPCA', 'IPCA-Var Mensal', 'IPCA - Acumulado')
+
+ipca <- na.omit(ipca) %>%
+        window(start = c(1997,1), end = c(2023,1))
+
+ipca <- ipca[,1]
+
+### Deflacionar Séries
+real <- tail(ipca,1)*data/ipca
+colnames(real) <- colnames(data)
+pib.real <- tail(ipca,1)*pib/ipca
+
+### Acumular em 12 meses
+real12 <- real+(stats::lag(real,-1)+stats::lag(real,-2)+stats::lag(real,-3)+
+stats::lag(real,-4)+stats::lag(real,-5)+stats::lag(real,-6)+stats::lag(real,-7)+
+stats::lag(real,-8)+stats::lag(real,-9)+stats::lag(real,-10)+stats::lag(real,-11))
+colnames(real12) <- colnames(data)
+
+data12 <- data+stats::lag(data,-1)+stats::lag(data,-2)+stats::lag(data,-3)+
+stats::lag(data,-4)+stats::lag(data,-5)+stats::lag(data,-6)+stats::lag(data,-7)+
+stats::lag(data,-8)+stats::lag(data,-9)+stats::lag(data,-10)+stats::lag(data,-11)
+colnames(data12) <- colnames(data)
+
+### Percentual do PIB
+ppib <- data12/pib*100
+colnames(ppib) <- colnames(data)
+
+## Variação interanual real
+interanual <- (real/stats::lag(real,-12)-1)*100
+## Variação mensal acumulada em 12 meses (real)
+mensal <- (real12/stats::lag(real12,-1)-1)*100
+colnames(mensal) <- colnames(data)
+## Variação interreal12
+interanual2 <- (real12/stats::lag(real12,-12)-1)*100
+colnames(interanual2) <- colnames(data)
+
+## Variação acumulada em 12 meses
+anual <- (((real12+stats::lag(real12,-1)+stats::lag(real12,-2)+stats::lag(real12,-3)
++stats::lag(real12,-4)+stats::lag(real12,-5)+stats::lag(real12,-6)+stats::lag(real12,-7)
++stats::lag(real12,-8)+stats::lag(real12,-9)+stats::lag(real12,-10)+
+stats::lag(real12,-11))/12)/
+((stats::lag(real12,-12)+stats::lag(real12,-13)+
+stats::lag(real12,-14)+stats::lag(real12,-15)
++stats::lag(real12,-16)+stats::lag(real12,-17)+stats::lag(real12,-18)
++stats::lag(real12,-19)+stats::lag(real12,-20)+stats::lag(real12,-21)
++stats::lag(real12,-22)+stats::lag(real12,-23))/12)-1)*100
+colnames(anual) <- colnames(data)
+
+#Montar tabela#
+c1 <- tail(real[,c(1,2,15,24,33,34,35,36,37,60,61)], n=1)
+c2 <- real[nrow(real)-12,c(1,2,15,24,33,34,35,36,37,60,61)]
+c3 <- tail(interanual[,c(1,2,15,24,33,34,35,36,37,60,61)], n=1)
+table <- t(rbind(c1,c2,c3))
+colnames(table) <- c('Jan/23', 'Jan/22', 'Variação (%)')
+
+```
+
+<br>
+
+### Análise em Tabelas
+
+Os dados estão em R$ Milhões - Valores deflacionados.  
+
+<br>
+
+```{r mba5}
+datatable(round(table,2),
+          options = list(pageLength = 11,
+            dom = 't',
+                         columnDefs = 
+                           list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Obs: RFB (Receita Federal do Brasil) compreende Imposto de Importação, IPI, Imposto de Renda, IOF, Cofins, PIS/Pasep, CSLL, CPMF, CIDE  Combustíveis, Outras Receitas Administradas pela RFB. 
+
+Receita Não RFB compreende, Concessões e Permissões, Dividendos e Participações, Contr. Plano de Seguridade Social do Servidor, Receitas de Exploração de Recursos Naturais, Receitas Próprias (fontes 50, 81 e 82), Contribuição do, Salário Educação, Complemento para o FGTS (LC nº 110/01), Demais Receitas Não Administradas pela RFB. 
+
+Despesas discricionárias são aquelas ligadas a serviços públicos, mas sobre as quais o Governo pode decidir como e quanto gastar. 
+
+A Receita Líquida é a Receita Total menos as Transferências.
+
+O Resultado primário é a diferença entre a Receita Liquida e a Despesa Total. 
+
+```{r mba7, include = FALSE}
+##Montar tabela com última observação
+c1 <- tail(real12[,c(1,2,15,24,33,34,35,36,37,60,61)], n=1)
+c2 <- real12[nrow(real12)-12,c(1,2,15,24,33,34,35,36,37,60,61)]
+c3 <- tail(interanual2[,c(1,2,15,24,33,34,35,36,37,60,61)], n=1)
+tablea <- t(rbind(c1,c2,c3))
+colnames(tablea) <- c('Jan/23', 'Jan/22', 'Variação (%)')
+```
+
+<br>
+
+#### Tabela dados acumulados em 12 meses
+
+<br>
+
+```{r mba8}
+datatable(round(tablea,2),
+          options = list(pageLength = 11,
+            dom = 't',
+            columnDefs = 
+              list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+#### Tabela dados como percentual do PIB
+
+<br>
+
+```{r mba9, include = FALSE}
+#Montar tabela com última observação 
+c1 <- tail(ppib[,c(1,2,15,24,33,34,35,36,37,60,61)], n=1)
+c2 <- ppib[nrow(ppib)-12,c(1,2,15,24,33,34,35,36,37,60,61)]
+c3 <- c1-c2
+tableb <- t(rbind(c1,c2,c3))
+colnames(tableb) <- c('Jan/23', 'Jan/22', 'p.p')
+```
+
+```{r mba10}
+datatable(round(tableb,2),
+          options = list(pageLength = 11,
+            dom = 't',
+            columnDefs = 
+              list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+### Análise Gráfica
+
+<br>
+
+
+Governo Central é constituído pelo Tesouro Nacional, pela Previdência Social e pelo Banco Central.
+
+```{r mba11, echo=FALSE}
+library(ggplot2)
+library(scales)
+library(reshape2)
+
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
+
+real12a <-data.frame(window(real12, start=c(2003,01)),dates)
+
+receitas <- real12a[,33]/1000
+despesas <- real12a[,34]/1000
+
+dados <- data.frame(receitas, despesas, dates)
+dados2 <- melt(dados, id.var='dates')
+
+ggplot(data=dados2)+
+  geom_line(aes(x=dates, y=value, colour=variable), linetype = "solid",size = 1)+
+  scale_colour_manual(values = c("blue", "red"))+
+  scale_y_continuous(n.breaks = 10)+
+  scale_x_date(breaks = date_breaks("2 years"),
+               labels = date_format("%Y"))+
+ labs(y= "R$ Bilhões", x= "Anos", title='Receita Líquida x Despesa Total do Governo Central',
+       caption = "Fonte: Tesouro Nacional, 2023.")+
+  theme_gray()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+```
+
+<br>
+
+#### Percentual do PIB
+
+<br>
+
+```{r mba12, echo=FALSE}
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
+
+ppiba <-data.frame(window(ppib, start=c(2003,01)), dates)
+
+receitas <- ppiba[,33]
+despesas <- ppiba[,34]
+
+dados <- data.frame(receitas, despesas, dates)
+dados2 <- melt(dados, id.var='dates')
+
+ggplot(data=dados2)+
+  geom_line(aes(x=dates, y=value, colour=variable), linetype = "solid",size = 1)+
+  scale_colour_manual(values = c("blue", "red"))+
+  scale_y_continuous(n.breaks = 10)+
+  scale_x_date(breaks = date_breaks("2 years"),
+               labels = date_format("%Y"))+
+ labs(y= "%PIB", x= "Anos", title='Receita Líquida x Despesa Total do Governo Central',
+       caption = "Fonte: Tesouro Nacional, 2023.")+
+  theme_gray()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+```
+
+<br>
+
+#### Resultado Primário
+
+<br>
+```{r mba13, echo=FALSE}
+
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
+
+ppibb <-data.frame(window(ppib[,61], start=c(2003,01)), dates)
+
+colnames(ppibb)[1] <- 'primario'
+
+ggplot(ppibb, aes(x=dates))+
+  geom_line(aes(y=primario), linewidth=1, colour='blue')+
+  scale_x_date(breaks = date_breaks("2 years"),
+               labels = date_format("%Y"))+
+  labs(y= "%PIB", x= "Anos", title='Resultado Primário do Governo Central acumulado em 12 meses (% PIB)',
+       caption = "Fonte: Tesouro Nacional, 2023.")+
+  theme_gray()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo
+
+```
+<br>
+
+#### Gastos e Receitas da Previdencia Social
+<br>
+
+```{r mba14, echo=FALSE}
+#Gastos e Receitas da Previdencia Social
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
+previdencia <- data.frame(receita=real[,14],
+                         despesa=real[,35])
+
+previdencia <- ts(previdencia, start=c(1997,01), freq=12)
+
+previdencia <- window(previdencia, start=c(2003,01) )
+#Sys.setenv(X13_PATH = "C:/Users/Joao Ricardo Lima/Documents/R/win-library/3.5/x13binary/bin")
+library(seasonal)
+checkX13()
+
+## Dessazonalizar as séries
+receita_sa <- seas(previdencia[,1])
+despesa_sa <- seas(previdencia[,2])
+previdencia_sa <- data.frame(time=dates, receita=final(receita_sa),
+                            despesa=final(despesa_sa))
+
+ggplot(previdencia_sa, aes(x=time))+
+  geom_line(aes(y=receita/1000, colour='Receita'), size=.8)+
+  geom_line(aes(y=despesa/1000, colour='Despesa'), size=.8)+
+  scale_colour_manual('', values=c('Receita'='darkgreen',
+                                   'Despesa'='red'))+
+  theme(legend.position = 'top')+
+  scale_x_date(breaks = date_breaks("2 years"),
+               labels = date_format("%Y"))+
+  xlab('')+ylab('R$ bilhões')+
+  labs(title='Receitas vs. Despesas do RGPS (Dessazonalizado)',
+       caption='Fonte: STN.')
+```
+<br>
+
+### Necessidade de Financiamento do Setor Público (NFSP)
+
+<br>
+
+Necessidade de Financiamento do Setor Público (NFSP) no conceito primário é a diferença entre as receitas e despesas do setor público com exceção dos gastos com juros.
+
+No conceito nominal é o resultado primário menos o pagamento de juros nominais.
+
+As  Necessidades de Financiamento do Setor Público incluem o Governo Federal (Tesouro Nacional e Sistema de Previdência Social), os governos estaduais e municipais, as empresas estatais das três esferas de governo (exceto Petrobras e Eletrobras) e o Banco Central do Brasil.
+
+**Resultado nominal:** corresponde à variação nominal dos saldos da dívida líquida, deduzidos os ajustes patrimoniais e metodológicos efetuados no período. Abrange o componente de atualização monetária da dívida, os juros reais e o resultado fiscal primário.
+
+**Juros nominais:** refere-se ao fluxo de juros, apropriados por competência, incidentes sobre a dívida interna e externa. Engloba os juros reais e o componente de atualização monetária da dívida. Corresponde ao componente financeiro do resultado fiscal. Exclui o impacto da variação cambial sobre a dívida externa e sobre a dívida mobiliária interna indexada ao dólar.
+
+**Resultado primário:** é o componente não-financeiro do resultado fiscal do setor público. Corresponde ao resultado nominal menos os juros nominais apropriados por competência, incidentes sobre a dívida.
+
+Para esta análise serão usadas as séries: 
+
+* 7853 (NFSP - Fluxo mensal corrente - Resultado primário - Total - Governo Federal sem INSS);
+
+* 7854 (NFSP - Fluxo mensal corrente - Resultado primário - Total - INSS)
+
+* 4643 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado primário - Total - Governos estaduais)
+
+* 4644 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado primário - Total - Governos municipais)
+
+* 4645 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado primário - Total - Empresas estatais)
+
+* 4649 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado primário - Total - Setor público consolidado)
+
+* 4607 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Juros nominais - Total - Governo Federal)
+
+* 4608 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Juros nominais - Total - Banco Central)
+
+* 4610 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Juros nominais - Total - Governos estaduais)
+
+* 4611 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Juros nominais - Total - Governos municipais)
+
+* 4612 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Juros nominais - Total - Empresas estatais)
+
+* 4616 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Juros nominais - Total - Setor público consolidado)
+
+* 4574 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado nominal - Total - Governo Federal)
+
+* 4575 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado nominal - Total - Banco Central)
+
+* 4577 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado nominal - Total - Governos estaduais)
+
+* 4578 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado nominal - Total - Governos municipais)
+
+* 4579 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado nominal - Total - Empresas estatais)
+
+* 4583 (NFSP sem desvalorização cambial - Fluxo mensal corrente - Resultado nominal - Total - Setor público consolidado) disponíveis no Banco Central.
+
+São 18 séries, as seis primeiras são o resultado primário, seis de juros e e seis sobre o resultado nominal. 
+
+``` {r mba15, echo=FALSE}
+
+library(BMR)
+
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("Governo Federal" = 7853, "INSS" = 7854, 
+#       "Governos Estaduais" = 4643, "Governos Municipais" = 4644, "Empresas Estatais" = 4645, 
+#       "Setor Publico Consolidado" = 4649, " Juros Gov Federal" = 4607, "Juros BACEN" = 4608, 
+#       "Juros Gov Estaduais" = 4610, "Juros Gov Municipais" = 4611, "Juros Empresas Estatais" = 4612, 
+#       "Juros Setor Pub Consol" = 4616, "Nominal Gov Federal" = 4574, "Nominal BACEN" = 4575, 
+#       "Nominal Gov Estaduais" = 4577, "Nominal Gov Municipais" = 4578, "Nominal Estatatis" = 4579, 
+#       "Nominal Setor Pub Consol" = 4583),
+#first.date = "2001-12-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
+
+#write.csv2(dados_sgs, file='arquivo30.csv')
+
+nfsp <- ts(read.csv2('arquivo30.csv',
+                       header=T, sep=';', dec=",")[,-c(1,2)],
+             start=c(2001,12), freq=12)
+
+colnames(nfsp) <- c("Governo Federal", "INSS", "Governos Estaduais", "Governos Municipais", "Empresas Estatais", "Setor Publico Consolidado", " Juros Gov Federal", "Juros BACEN", "Juros Gov Estaduais", "Juros Gov Municipais", "Juros Empresas Estatais", "Juros Setor Pub Consol", "Nominal Gov Federal", "Nominal BACEN", "Nominal Gov Estaduais", "Nominal Gov Municipais", "Nominal Estatatis", "Nominal Setor Pub Consol")
+
+ipca <- ts(read.csv2('arquivo13a.csv', header=T,
+                     sep=';', dec='.', skip=3)[,-1],
+           start=c(1980,12), freq=12)
+
+colnames(ipca) <- c('IPCA', 'IPCA-Var Mensal', 'IPCA - Acumulado')
+
+ipca <- na.omit(ipca) %>%
+        window(start = c(2001,12), end = c(2023,1))
+
+ipca <- ipca[,1]
+
+### Deflacionar Séries
+nfsp_real <- tail(ipca,1)*nfsp/ipca
+colnames(nfsp_real) <- colnames(nfsp)
+
+### Acumular em 12 meses
+real122 <- nfsp_real+stats::lag(nfsp_real,-1)+stats::lag(nfsp_real,-2)+stats::lag(nfsp_real,-3)+
+  stats::lag(nfsp_real,-4)+stats::lag(nfsp_real,-5)+stats::lag(nfsp_real,-6)+stats::lag(nfsp_real,-7)+
+  stats::lag(nfsp_real,-8)+stats::lag(nfsp_real,-9)+stats::lag(nfsp_real,-10)+stats::lag(nfsp_real,-11)
+colnames(real122) <- colnames(nfsp)
+
+nfsp12 <- nfsp+stats::lag(nfsp,-1)+stats::lag(nfsp,-2)+stats::lag(nfsp,-3)+
+  stats::lag(nfsp,-4)+stats::lag(nfsp,-5)+stats::lag(nfsp,-6)+stats::lag(nfsp,-7)+
+  stats::lag(nfsp,-8)+stats::lag(nfsp,-9)+stats::lag(nfsp,-10)+stats::lag(nfsp,-11)
+colnames(nfsp12) <- colnames(nfsp)
+
+### Percentual do PIB
+
+ppib3 <- nfsp12/pib*100
+colnames(ppib3) <- colnames(nfsp)
+```
+
+<br>
+
+#### NFSP Resultado Primário Acumulado 12 meses em % do PIB
+
+<br>
+
+```{r mba16, fig.cap="NFSP Resultado Primário Acumulado 12 meses em % do PIB"}
+dates <- seq(as.Date('2002-11-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(ppib3[,1:6], dates=dates)
+```
+
+<br>
+
+#### NFSP Juros Acumulado 12 meses em % do PIB
+
+<br>
+
+```{r mba17, fig.cap="NFSP Juros Acumulado 12 meses em % do PIB"}
+dates <- seq(as.Date('2002-11-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(ppib3[,7:12], dates=dates)
+```
+
+<br>
+
+#### NFSP Resultado Nominal Acumulado 12 meses em % do PIB 
+
+<br>
+
+```{r mba18, fig.cap="NFSP Resultado Nominal Acumulado 12 meses em % do PIB"}
+dates <- seq(as.Date('2002-11-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(ppib3[,13:18], dates=dates)
+```
+
+<br>
+
+### Endividamento do Governo
+
+Os dados de endividamento do Governo podem ser obtidos no link "https://www.bcb.gov.br/content/estatisticas/Documents/Tabelas_especiais/Divggnp.xlsx". 
+
+As variáveis consideradas são Dívida líquida do setor público (A= B+K+L), Dívida líquida do governo geral(B=C+F+I+J), Dívida bruta do governo geral(C=D+E), Dívida interna (D), Dívida externa (E), Créditos do governo geral (F=G+H),  Créditos internos (G), Créditos externos (H), Títulos livres na carteira do Bacen (I), Equalização Cambial (J), Dívida líquida do Banco Central (K) e  Dívida líquida das empresas estatais (L). 
+
+```{r mba19, echo=FALSE}
+divida <- read_xlsx(
+  path = "Divggnp.xlsx",
+  sheet = "% PIB",
+  col_names = TRUE,
+  col_types = 'numeric',
+  skip = 6
+  ) 
+
+divida <- t(divida[-c(1:2, 51:66),-1])
+
+divida_reais <- read_xlsx(
+  path = "Divggnp.xlsx",
+  sheet = "R$ milhões",
+  col_names = TRUE,
+  col_types = 'numeric',
+  skip = 6
+  ) 
+
+divida_reais <- t(divida_reais[-c(1:2, 52:67),-1])
+
+divida <- ts(divida, start=c(2006,12), freq=12)
+divida_reais <- ts(divida_reais, start=c(2006,12), freq=12)
+
+colnames(divida) <- c(1:48)
+colnames(divida_reais) <- c(1:49)
+
+componentes <- divida[,c(1:4, 19, 25, 26, 40, 44, 45, 46, 48)]
+componentes1 <- cbind(componentes[,c(1:5)], componentes[,c(6:8)]*-1,
+componentes[,9],
+componentes[,10]*-1,
+componentes[,c(11:12)])
+colnames(componentes1) <- c('Dívida líquida do setor público', 'Dívida líquida do governo geral', 'Dívida bruta do governo geral', 'Dívida Interna', 'Dívida Externa', 'Créditos do governo geral', 'Créditos internos', 'Créditos Externos', 'Títulos livres na carteira do Bacen', 'Equalização Cambial', 'Dívida líquida do Banco Central', 'Dívida líquida das empresas estatais')
+
+componentes2 <- cbind(componentes[,c(1:5)], componentes[,c(6:8)]*-1,
+componentes[,9],
+componentes[,10]*-1,
+componentes[,c(11:12)])
+colnames(componentes2) <- c('dlsp', 'dlgg', 'dbgg', 'di', 'de', 'cgg', 'ci', 'ce', 'tlbc', 'ec', 'dlbc', 'dlee')
+
+evol_c1 <- t(round(tail(componentes1, n=13),2))
+evol_c1 <- evol_c1[,1]
+evol_c2 <- t(round(tail(componentes1, n=1), 2))
+evol_res <- evol_c2 - evol_c1
+evol_comp <- cbind(evol_c1, evol_c2, round(evol_res,2))
+colnames(evol_comp) <- c('2022/01', '2023/01', 'Delta')
+```
+
+<br>
+
+### Tabela da Evolução do Endividamento Público (% do PIB)
+
+<br>
+
+```{r mba20}
+datatable(evol_comp,
+          options = list(pageLength = 12,
+            dom = 't',
+            columnDefs = 
+              list(list(className = 'dt-center', targets = "_all"))))
+```
+
+<br>
+
+### Gráfico da Evolução do Endividamento Público (% do PIB)
+
+<br>
+
+```{r mba21, fig.cap=" Evolução do Endividamento Público (% do PIB)"}
+dates <- seq(as.Date('2006-12-01'), as.Date('2023-01-01'), by='1 month')
+gtsplot(componentes2, dates=dates)
+```
+
+<br>
+
+Uma análise ampla da política fiscal deve envolver o conhecimento da lei de responsabilidade fiscal (lei complementar 101 de 4 de maio de 2000), bem como o processo de elaboração dos orçamentos nos três níveis de governo. Isso passa por conhecer os planos plurianuais, as leis de diretrizes orçamentárias e, também, a a lei orçamentária anual. Ademais, é preciso acompanhar a execução orçamentária por meio dos relatórios regulares, pré-definidos na LRF, que devem ser necessariamente publicados pelos governos.
+
+Tudo o que foi mostrado foram dados reais de despesa e receita que viram em algum momento estoque de endividamento.
 
 <br>
