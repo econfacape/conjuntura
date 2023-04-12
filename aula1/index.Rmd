@@ -194,7 +194,7 @@ assim, o fluxo seria a variação do estoque medido ao longo do tempo.
 dados_sgs <- GetBCBData::gbcbd_get_series(
 id = c("NFSP" = 5793, "DBGG" = 13762),
 first.date = "2006-12-01",
-last.date = "2023-01-01",
+last.date = "2023-02-01",
 format.data = "wide"
 )
 tail(dados_sgs)
@@ -334,7 +334,7 @@ Outra questão interessante aqui é sobre o que o hiato do produto representa. E
 Com esse modelo básico compreendido, é possível interpretar como mudanças em uma determinada variável afetam outras, bem como o mecanismo pelo qual a política econômica pode afetar o nível de atividade. O próximo passo são as análises empíricas.
 
 
-```{r mba4, results = "hide", fig.show='hide'}
+```{r mba4, results = "hide", fig.cap="Figura 4: Juro Real x Juro Neutro"}
 library(GetTDData)
 library(readr)
 library(xts)
@@ -396,9 +396,6 @@ addLegend("bottomleft", on=1,
           col=c("black", "red"))
 ```
 
-<br>
-
-![Figura 4: Juro Real x Juro Neutro](img_r/img1.png){width="100%"} 
 <br>
 
 # Lidando com Dados
@@ -797,7 +794,7 @@ O varejo ampliado tem 10 setores, pois inclui ao varejo restrito material de con
 
 library(tidyverse)
 
-#https://sidra.ibge.gov.br/tabela/8185
+#https://sidra.ibge.gov.br/tabela/8880
 restrito <- read.csv2('arquivo07.csv', header=T, sep=";",dec=".", skip=4)
 
 colnames(restrito) <- c('X', 'Receita', 'Volume', 'Receita SA', "Volume SA")
@@ -807,7 +804,7 @@ restrito <- select(restrito, Volume, 'Volume SA', Receita, 'Receita SA')
 restrito <- ts(restrito[-nrow(restrito),], start=c(2000,1), freq=12)
 
 ## Importar o arquivo do comercio ampliado
-#https://sidra.ibge.gov.br/tabela/8186
+#https://sidra.ibge.gov.br/tabela/8881
 ampliado <- read.csv2('arquivo08.csv', header=T, sep=";",dec=".", skip=4)
 
 colnames(ampliado) <- c('X', 'Receita', 'Volume', 'Receita SA', "Volume SA")
@@ -817,11 +814,12 @@ ampliado <- select(ampliado, Volume, 'Volume SA', Receita, 'Receita SA')
 ampliado <- ts(ampliado[-nrow(ampliado),], start=c(2003,1), freq=12)
 
 ## Importar o arquivo 'desagregado'
-#https://sidra.ibge.gov.br/tabela/8188
+#https://sidra.ibge.gov.br/tabela/8883
 desagregado <- read.csv2('arquivo09.csv', header=T, sep=";", dec=".", skip=5)
 desagregado <- desagregado[-nrow(desagregado),]
+#desagregado <- na.omit(desagregado)
 desagregado <- desagregado[,c(2:ncol(desagregado))]
-desagregado <- ts(desagregado, start=c(2000,1), freq=12)
+desagregado <- ts(desagregado, start=c(2003,1), freq=12)
 
 ## Nomes das categorias desagregadas do comercio
 names.desagregado <- c("Combustiveis e lubrificantes",	"Hipermercados, supermercados, produtos alimenticios, bebidas e fumo",	"Hipermercados e supermercados", "Tecidos, vestuario e calcados", "Moveis e eletrodomesticos",	"Artigos farmaceuticos, medicos, ortopedicos, de perfumaria e cosmeticos", "Livros, jornais, revistas e papelaria", "Equipamentos e materiais para escritorio, informatica e comunicacao", "Outros artigos de uso pessoal e domestico", "Veículos, motocicletas, partes e peças", "Material de construção")
@@ -875,7 +873,7 @@ colnames(table_pmc) <- c('Mensal', 'Trimestral', 'Interanual', '12 meses')
 
 #Updated 15/11/18
 #ultima <- as.Date('2022-12-01')
-dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
 
 #Variação em relação ao mes anterior
 plot1 <- window(vmensal, start=c(2003,1))
@@ -890,7 +888,7 @@ gtsplot(plot1, dates=dates)
 <br>
 
 ``` {r mba17, fig.cap = 'Figura 14: Pesquisa Mensal do Comércio (PMC-IBGE) - Variação em relação ao mesmo mês do ano anterior'}
-dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
 plot2 <- window(interanual, start=c(2003,1))
 gtsplot(plot2, dates=dates)
 ```
@@ -902,7 +900,7 @@ gtsplot(plot2, dates=dates)
 <br>
 
 ``` {r mba18, fig.cap = 'Figura 15: Pesquisa Mensal do Comércio (PMC-IBGE) - Variação acumulada em 12 meses'}
-dates <- seq(as.Date('2003-12-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2003-12-01'), as.Date('2023-01-01'), by='1 month')
 plot3 <- window(anual, start=c(2003,12))
 gtsplot(plot3, dates=dates)
 ```
@@ -978,7 +976,7 @@ datatable(round(table.des,2),
 #dados_sgs <- GetBCBData::gbcbd_get_series(
 #id = c("Confiança do Consumidor" = 4393),
 #first.date = "2000-01-01",
-#last.date = "2023-01-01",
+#last.date = "2023-03-01",
 #format.data = "wide"
 #)
 #tail(dados_sgs)
@@ -1005,7 +1003,7 @@ Desde a década de 1970, o IBGE divulga a Pesquisa Industrial Mensal - Produçã
 
 ```{r mba22, fig.cap = 'Figura 17: PIM-IBGE Crescimento acumulado em 12 meses (%a.a)'}
 #Pesquisa com a Industria
-#https://sidra.ibge.gov.br/tabela/8159
+#https://sidra.ibge.gov.br/tabela/8888
 pim_t <- read.csv2('arquivo10.csv', header=T, sep=';', 
                  dec='.', skip=4)[,-1]
 
@@ -1056,7 +1054,7 @@ grid(col='grey0')
 
 ```{r mba23, fig.cap = 'Figura 18: PIM Variação Mensal'}
 #window <- window(pim.mensal, start=c(2002,02))
-dates <- seq(as.Date('2002-02-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2002-02-01'), as.Date('2023-01-01'), by='1 month')
 #Conjuntura12
 gtsplot(pim.mensal,dates=dates)
 ```
@@ -1070,7 +1068,7 @@ gtsplot(pim.mensal,dates=dates)
 ```{r mba24, fig.cap = 'Figura 19: PIM Variação mesmo mês do ano anterior'}
 
 #window <- window(pim.intanual, start=c(2003,01))
-dates <- seq(as.Date('2003-01-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2003-01-01'), as.Date('2023-01-01'), by='1 month')
 #Conjuntura13
 gtsplot(pim.intanual,dates=dates)
 ```
@@ -1082,7 +1080,7 @@ gtsplot(pim.intanual,dates=dates)
 <br>
 
 ```{r mba25, fig.cap = 'Figura 20: PIM Acumulado Anual'}
-dates <- seq(as.Date('2003-12-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2003-12-01'), as.Date('2023-01-01'), by='1 month')
 #Conjuntura14
 gtsplot(anual,dates=dates)
 ```
@@ -1097,9 +1095,9 @@ Uma última variável de nível de atividade a ser analisada é a Utilização d
 
 ```{r mba26, fig.cap = 'Figura 21: Utilização da capacidade instalada – indústria de transformação (FGV)'}
 #dados_sgs <- GetBCBData::gbcbd_get_series(
-#id = c("IBC-Br" = 24352),
+#id = c("UCI" = 24352),
 #first.date = "2001-01-01",
-#last.date = "2023-01-01",
+#last.date = "2023-03-01",
 #format.data = "wide"
 #)
 #tail(dados_sgs)
@@ -1110,7 +1108,7 @@ uci <- read.csv2('arquivo11.csv',
                        header=T, sep=';',
                   dec=",")[,-c(1,2)]
 
-dates <- seq(as.Date('2001-01-01'), as.Date('2023-01-01'), by='1 month')
+dates <- seq(as.Date('2001-01-01'), as.Date('2023-03-01'), by='1 month')
 
 df <- data.frame(time=dates, uci=uci)
 uci_plot <- ggplot(df, aes(x=time))+
