@@ -52,13 +52,13 @@ Não é simples. Para entender corretamente é preciso primeiramente entender um
 ```{r mba1, fig.cap = 'Figura 1: Exemplos de variáveis macroeconômicas.'}
 library(GetBCBData)
 
-dados_sgs <- GetBCBData::gbcbd_get_series(
-id = c("IPCA" = 13522, "IBC-Br" = 24363, "Resultado Primário" = 5793),
-first.date = "2003-01-01",
-last.date = "2022-12-01",
-format.data = "wide"
-)
-tail(dados_sgs)
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("IPCA" = 13522, "IBC-Br" = 24363, "Resultado Primário" = 5793),
+#first.date = "2003-01-01",
+#last.date = "2023-01-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
 
 #write.csv2(dados_sgs, file='arquivo00.csv')
 
@@ -191,19 +191,19 @@ As **variáveis macroeconômicas** são expressas em termos de **fluxo** e **est
 assim, o fluxo seria a variação do estoque medido ao longo do tempo.
 
 ``` {r mba3, fig.cap = 'Figura 3: Fluxos e Estoques'}
-dados_sgs <- GetBCBData::gbcbd_get_series(
-id = c("NFSP" = 5793, "DBGG" = 13762),
-first.date = "2006-12-01",
-last.date = "2023-02-01",
-format.data = "wide"
-)
-tail(dados_sgs)
+#dados_sgs <- GetBCBData::gbcbd_get_series(
+#id = c("NFSP" = 5793, "DBGG" = 13762),
+#first.date = "2006-12-01",
+#last.date = "2023-02-01",
+#format.data = "wide"
+#)
+#tail(dados_sgs)
 
 #write.csv2(dados_sgs, file='arquivo02.csv')
 
 dados_sgs <- ts(read.csv2('arquivo02.csv',
                        header=T, sep=';', dec=',')[,-c(1,2)],
-             start=c(2006,01), freq=12)
+             start=c(2006,12), freq=12)
 
 layout(matrix(c(1,1,2,2), ncol=2, byrow = TRUE))
 plot(dados_sgs[,1], xlab='', ylab='% do PIB', main='Necessidade de Financiamento do Setor Público')
@@ -334,7 +334,7 @@ Outra questão interessante aqui é sobre o que o hiato do produto representa. E
 Com esse modelo básico compreendido, é possível interpretar como mudanças em uma determinada variável afetam outras, bem como o mecanismo pelo qual a política econômica pode afetar o nível de atividade. O próximo passo são as análises empíricas.
 
 
-```{r mba4, results = "hide", fig.cap="Figura 4: Juro Real x Juro Neutro"}
+```{r mba4, include=FALSE, fig.cap="Figura 4: Juro Real x Juro Neutro"}
 library(GetTDData)
 library(readr)
 library(xts)
@@ -390,6 +390,9 @@ load("dados.RData")
 plot.xts(df2, main="Juro Real x Juro Neutro",
      xlab='(meses)', ylab='%a.a.', lwd=3)
 lines(df3, col='red', lwd=3)
+```
+
+```{r mba4a, echo=FALSE, fig.cap="Figura 4: Juro Real x Juro Neutro"}
 addLegend("bottomleft", on=1, 
           legend.names = c("Juro Real ex-ante", "Juro Neutro"), 
           lty=c(1, 1), lwd=c(2, 1),
@@ -693,7 +696,7 @@ Dado que o PIB é calculado pelo IBGE é uma variável trimestral, logo existe p
 #dados_sgs <- GetBCBData::gbcbd_get_series(
 #id = c("IBC-Br" = 24363, "IBC-BR SA" = 24364),
 #first.date = "2003-01-01",
-#last.date = "2022-12-01",
+#last.date = "2023-01-01",
 #format.data = "wide"
 #)
 #tail(dados_sgs)
@@ -747,10 +750,10 @@ table.anual <- tail(anual, n=3)
 table <- cbind(table.vmensal, table.trimestral, table.interanual,
                table.anual)
 colnames(table) <- c('Mensal', 'Trimestral', 'Interanual', '12 meses')
-rownames(table) <- c('Outubro/22', 'Novembro/22', 'Dezembro/22')
+rownames(table) <- c('Novembro/22', 'Dezembro/22', 'Janeiro/23')
 
 plot1 <- cbind(vmensal, trimestral, interanual, anual)
-dates <- seq(as.Date('2005-01-01'), as.Date('2022-12-01'), by='1 month')
+dates <- seq(as.Date('2005-01-01'), as.Date('2023-01-01'), by='1 month')
 plot1 <- window(plot1, start=c(2005,1))
 gtsplot(plot1, dates=dates)
 ```
